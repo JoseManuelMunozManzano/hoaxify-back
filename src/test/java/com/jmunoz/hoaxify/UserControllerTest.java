@@ -53,7 +53,6 @@ public class UserControllerTest {
         // Comprobamos si recibimos lo que queremos
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        // Esto va a fallar porque no tenemos ningún endpoint en nuestro código backend que maneje esta petición.
-        // Tenemos que crear un controller.
+        // Tras crear lo mínimo necesario, la clase UserController con el endpoint, ya vemos que se pasa el test.
     }
 }
