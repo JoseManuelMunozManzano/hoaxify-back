@@ -1,3 +1,3 @@
 # Hoaxify
 
-Backend App using Spring Boot with TDD 
+Backend App using Spring Boot with TDD and JUnit5
