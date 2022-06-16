@@ -74,14 +74,20 @@ public class UserControllerTest {
         User user = createValidUser();
         testRestTemplate.postForEntity(API_1_0_USERS, user, Object.class);
 
-        // Obtenemos el usuario de la BD (solo hay 1 porque limpiamos siempre la BD tras cada test)
-        // Más adelante, añadiremos más queries, pero por ahora tiraremos con la funcionalidad por defecto
-        // de userRepository
         List<User> users = userRepository.findAll();
         User indB = users.get(0);
 
-        // Comparamos el password en BD y para el usuario actual, y no pueden ser iguales.
-        // Ahora mismo falla
+        // Tras incluir bcrypt para encriptar nuestro password, nuestros test fallan (las operaciones post)
+        // porque Spring Boot está haciendo la autoconfiguración, y para Spring Security, la configuración
+        // por defecto consiste en dar seguridad a todos los endpoints, lo que significa que todas
+        // las peticiones de autorización son procesadas, y como en nuestro test no estamos indicando
+        // ninguna autenticación (no headers en la petición) los test fallan.
+        //
+        // En este punto del desarrollo, solo se va a usar encriptación lógica, no se va a implementar todavía
+        // la seguridad.
+        // Es por eso que deshabilitamos la autoconfiguración (ver HoaxifyApplication.java)
+        //
+        // Si ahora ejecutamos los tests ya si funcionan.
         assertThat(indB.getPassword()).isNotEqualTo(user.getPassword());
     }
 }
