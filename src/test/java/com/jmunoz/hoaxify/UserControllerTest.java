@@ -15,6 +15,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.*;
 
 // Test de integración
 
+// Solo se hace una assertion en cada test, porque aunque esto signifique escribir más, también, más tarde
+// permite que el tiempo dedicado al mantenimiento de los tests sea menor.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 public class UserControllerTest {
