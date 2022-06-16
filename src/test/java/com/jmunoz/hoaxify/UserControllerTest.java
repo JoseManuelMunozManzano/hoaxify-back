@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.List;
+
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 
 // Test de integración
@@ -49,7 +51,6 @@ public class UserControllerTest {
     @Test
     public void postUser_whenUserIsValid_receiveOk() {
         User user = createValidUser();
-
         ResponseEntity<Object> response = testRestTemplate.postForEntity(API_1_0_USERS, user, Object.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
@@ -58,19 +59,29 @@ public class UserControllerTest {
     public void postUser_whenUserIsValid_userSavedToDatabase() {
         User user = createValidUser();
         testRestTemplate.postForEntity(API_1_0_USERS, user, Object.class);
-
         assertThat(userRepository.count()).isEqualTo(1);
     }
 
     @Test
     public void postUser_whenUserIsValid_receiveSuccessMessage() {
         User user = createValidUser();
-
-        // Esperamos recibir como respuesta un GenericResponse, que todavía no existe, y lo creamos.
         ResponseEntity<GenericResponse> response = testRestTemplate.postForEntity(API_1_0_USERS, user, GenericResponse.class);
-
-        // De la response obtenemos el body y en concreto el mensaje
         assertThat(response.getBody().getMessage()).isNotNull();
+    }
 
+    @Test
+    void postUser_whenUserIsValid_passwordIsHashedInDatabase() {
+        User user = createValidUser();
+        testRestTemplate.postForEntity(API_1_0_USERS, user, Object.class);
+
+        // Obtenemos el usuario de la BD (solo hay 1 porque limpiamos siempre la BD tras cada test)
+        // Más adelante, añadiremos más queries, pero por ahora tiraremos con la funcionalidad por defecto
+        // de userRepository
+        List<User> users = userRepository.findAll();
+        User indB = users.get(0);
+
+        // Comparamos el password en BD y para el usuario actual, y no pueden ser iguales.
+        // Ahora mismo falla
+        assertThat(indB.getPassword()).isNotEqualTo(user.getPassword());
     }
 }
