@@ -68,7 +68,6 @@ public class UserControllerTest {
         ResponseEntity<GenericResponse> response = testRestTemplate.postForEntity(API_1_0_USERS, user, GenericResponse.class);
 
         // De la response obtenemos el body y en concreto el mensaje
-        // Como ahora mismo no obtenemos nada (null) este test falla.
         assertThat(response.getBody().getMessage()).isNotNull();
 
     }
