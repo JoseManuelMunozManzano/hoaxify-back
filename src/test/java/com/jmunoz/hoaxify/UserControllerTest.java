@@ -260,4 +260,16 @@ public class UserControllerTest {
         Map<String, String> validationErrors = response.getBody().getValidationErrors();
         assertThat(validationErrors.get("username")).isEqualTo("Debe estar entre el mínimo 4 y el máximo 255 de caracteres");
     }
+
+    @Test
+    void postUser_whenUserHasInvalidPasswordPattern_receiveMessageOfPasswordPatternError() {
+        User user = createValidUser();
+        user.setPassword("alllowercase");
+        ResponseEntity<ApiError> response = postSignup(user, ApiError.class);
+        Map<String, String> validationErrors = response.getBody().getValidationErrors();
+        // Para patrones, el mensaje por defecto es la expresión regular que hemos puesto
+        assertThat(validationErrors.get("password"))
+                .isEqualTo("El password debe tener al menos una letra mayúscula, una letra minúscula y un número");
+    }
+
 }
