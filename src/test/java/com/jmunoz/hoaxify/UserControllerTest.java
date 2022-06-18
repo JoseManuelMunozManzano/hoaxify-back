@@ -235,12 +235,12 @@ public class UserControllerTest {
         //
         // 3. Mixto. Indicamos en el fichero de properties de mensajes el nombre indicando NotNull.message
         //    con el texto concreto, y en la clase, en la anotación @NotNull indicamos que coja esa property.
-        //    Podemos tener distintos ficheros ValidationMessages_es.properties para mensajes en español,
+        //    Podemos tener distintos ficheros ValidationMessages_en.properties para mensajes en español,
         //    o ValidationMessages_tr.properties para mensajes en turco y así tenemos la internacionalización
         //    de los mensajes en la app.
         //    Si probamos en postman con un lenguaje para el que no tenemos traducción nos saldrá el del fichero
         //    por defecto (ValidationMessages.properties de Spring, no el nuestro!)
-        assertThat(validationErrors.get("username")).isEqualTo("Username cannot be null");
+        assertThat(validationErrors.get("username")).isEqualTo("Username no puede ser nulo");
     }
 
     @Test
@@ -249,6 +249,15 @@ public class UserControllerTest {
         user.setPassword(null);
         ResponseEntity<ApiError> response = postSignup(user, ApiError.class);
         Map<String, String> validationErrors = response.getBody().getValidationErrors();
-        assertThat(validationErrors.get("password")).isEqualTo("Cannot be null");
+        assertThat(validationErrors.get("password")).isEqualTo("No puede ser nulo");
+    }
+
+    @Test
+    void postUser_whenUserHasInvalidLengthUsername_receiveGenericMessageOfSizeError() {
+        User user = createValidUser();
+        user.setUsername("abc");
+        ResponseEntity<ApiError> response = postSignup(user, ApiError.class);
+        Map<String, String> validationErrors = response.getBody().getValidationErrors();
+        assertThat(validationErrors.get("username")).isEqualTo("Debe estar entre el mínimo 4 y el máximo 255 de caracteres");
     }
 }
