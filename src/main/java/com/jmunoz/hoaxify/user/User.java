@@ -25,9 +25,11 @@ public class User {
     private String username;
 
     @NotNull
+    @Size(min = 4)
     private String displayName;
 
     @NotNull
+    @Size(min = 8)
     private String password;
 
 }

@@ -116,4 +116,22 @@ public class UserControllerTest {
         ResponseEntity<Object> response = postSignup(user, Object.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
+
+    @Test
+    void postUser_whenUserHasDisplayNameWithLessThanRequired_receiveBadRequest() {
+        User user = createValidUser();
+        // El mínimo deben ser 4 caracteres
+        user.setDisplayName("abc");
+        ResponseEntity<Object> response = postSignup(user, Object.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void postUser_whenUserHasPasswordWithLessThanRequired_receiveBadRequest() {
+        User user = createValidUser();
+        // El mínimo deben ser 8 caracteres, con mayúsculas, minúsculas y números
+        user.setPassword("P4sswd");
+        ResponseEntity<Object> response = postSignup(user, Object.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
 }
