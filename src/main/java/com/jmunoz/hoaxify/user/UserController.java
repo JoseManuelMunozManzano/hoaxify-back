@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+
 @RestController
 public class UserController {
 
@@ -14,11 +16,7 @@ public class UserController {
 
     // Refactor
     @PostMapping("/api/1.0/users")
-    GenericResponse createUser(@RequestBody User user) {
-        if (user.getUsername() == null || user.getDisplayName() == null) {
-            throw new UserNotValidException();
-        }
-
+    GenericResponse createUser(@Valid @RequestBody User user) {
         userService.save(user);
         return new GenericResponse("User saved");
     }
