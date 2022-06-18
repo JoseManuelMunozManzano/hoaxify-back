@@ -25,11 +25,11 @@ public class User {
     private String username;
 
     @NotNull
-    @Size(min = 4)
+    @Size(min = 4, max = 255)
     private String displayName;
 
     @NotNull
-    @Size(min = 8)
+    @Size(min = 8, max = 255)
     private String password;
 
 }
