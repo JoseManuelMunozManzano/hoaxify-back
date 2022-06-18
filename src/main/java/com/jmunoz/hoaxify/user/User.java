@@ -7,6 +7,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 // Usando lombok para generar setters, getters, constructor vacío y método to toString
 // Se pone el nombre Users porque en H2 User es palabra reservada y da error al hacer consultas sobre dicho nombre.
@@ -20,6 +21,7 @@ public class User {
     private long id;
 
     @NotNull
+    @Size(min = 4)
     private String username;
 
     @NotNull
