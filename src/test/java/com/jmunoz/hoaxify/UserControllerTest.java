@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -206,5 +207,23 @@ public class UserControllerTest {
         User user = new User();
         ResponseEntity<ApiError> response = postSignup(user, ApiError.class);
         assertThat(response.getBody().getValidationErrors().size()).isEqualTo(3);
+    }
+
+    @Test
+    void postUser_whenUserHasNullUsername_receiveMessageOfNullErrorForUsername() {
+        User user = createValidUser();
+        user.setUsername(null);
+        ResponseEntity<ApiError> response = postSignup(user, ApiError.class);
+        Map<String, String> validationErrors = response.getBody().getValidationErrors();
+        // Esto da error porque los mensajes de error de Spring validation están en distintos idiomas.
+        // Internacionalización.
+        // Para que el test no falle hay distintas soluciones:
+        // 1. Hacer override del error en la clase User, indicando el texto que queremos enviar en el error.
+        //    No es ideal porque es un valor hardcode que nos hace perder la posibilidad de internacionalización.
+        //    Para ver este error, en Postman, en la cabecera indicar:
+        //    Accept-Language    y el valor     tr
+        //    Ahora los mensajes aparecen en turco, salvo el nuestro que sale en inglés con el texto que hemos puesto.
+        //    Si solo queremos hacer la app en un idioma, entonces si valdría.
+        assertThat(validationErrors.get("username")).isEqualTo("Username cannot be null");
     }
 }
