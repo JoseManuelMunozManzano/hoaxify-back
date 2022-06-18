@@ -224,6 +224,23 @@ public class UserControllerTest {
         //    Accept-Language    y el valor     tr
         //    Ahora los mensajes aparecen en turco, salvo el nuestro que sale en inglés con el texto que hemos puesto.
         //    Si solo queremos hacer la app en un idioma, entonces si valdría.
+        //
+        // 2. Llevarnos el texto con el error a un fichero de properties separado en vez de establecerlo directamente
+        //    en la anotación @NotNull.
+        //    Creamos en resources el fichero (el nombre es obligatorio) ValidationMessages.properties
+        //    Esta solución conlleva un problema. Estamos sobreescribiendo el mensaje NotNull con el valor añadido
+        //    en nuestro fichero properties de validaciones. Pero esto es PARA TODOS LOS CAMPOS NOT NULL.
+        //    Es decir, si el Password es Null también aparece ese mensaje indicando que el usuario no puede ser nulo.
+        //    Si optamos por esta solución, tenemos que ser muy genéricos con los mensajes.
         assertThat(validationErrors.get("username")).isEqualTo("Username cannot be null");
+    }
+
+    @Test
+    void postUser_whenUserHasNullPassword_receiveGenericMessageOfNullError() {
+        User user = createValidUser();
+        user.setPassword(null);
+        ResponseEntity<ApiError> response = postSignup(user, ApiError.class);
+        Map<String, String> validationErrors = response.getBody().getValidationErrors();
+        assertThat(validationErrors.get("password")).isEqualTo("Cannot be null");
     }
 }

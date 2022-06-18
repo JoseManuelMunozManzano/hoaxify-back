@@ -21,8 +21,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    // Haciendo override del mensaje de error para poner el que queramos
-    @NotNull(message = "Username cannot be null")
+    @NotNull
     @Size(min = 4, max = 255)
     private String username;
 
