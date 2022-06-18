@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 
@@ -87,7 +89,7 @@ public class UserControllerTest {
     @Test
     void postUser_whenUserHasNullUsername_receiveBadRequest() {
         User user = createValidUser();
-        user.setDisplayName(null);
+        user.setUsername(null);
         ResponseEntity<Object> response = postSignup(user, Object.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
@@ -95,7 +97,7 @@ public class UserControllerTest {
     @Test
     void postUser_whenUserHasNullDisplayName_receiveBadRequest() {
         User user = createValidUser();
-        user.setUsername(null);
+        user.setDisplayName(null);
         ResponseEntity<Object> response = postSignup(user, Object.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
@@ -131,6 +133,19 @@ public class UserControllerTest {
         User user = createValidUser();
         // El mínimo deben ser 8 caracteres, con mayúsculas, minúsculas y números
         user.setPassword("P4sswd");
+        ResponseEntity<Object> response = postSignup(user, Object.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void postUser_whenUserHasUsernameExceedsTheLengthLimit_receiveBadRequest() {
+        User user = createValidUser();
+        // El máximo son 255 caracteres
+        // Como estamos generando 256 caracteres va a dar error 500, no 404, por lo que el test falla.
+        // Una vez corregido en la clase User indicando que el máximo es 255 caracteres, no pasa la
+        // validación, y eso es un error 404, con lo que pasa el test.
+        String valueOf256Chars = IntStream.rangeClosed(1, 256).mapToObj(x -> "a").collect(Collectors.joining());
+        user.setUsername(valueOf256Chars);
         ResponseEntity<Object> response = postSignup(user, Object.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
