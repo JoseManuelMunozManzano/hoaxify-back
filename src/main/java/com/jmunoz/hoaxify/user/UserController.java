@@ -15,6 +15,10 @@ public class UserController {
     // Refactor
     @PostMapping("/api/1.0/users")
     GenericResponse createUser(@RequestBody User user) {
+        if (user.getUsername() == null) {
+            throw new UserNotValidException();
+        }
+
         userService.save(user);
         return new GenericResponse("User saved");
     }
