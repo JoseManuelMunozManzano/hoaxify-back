@@ -232,6 +232,14 @@ public class UserControllerTest {
         //    en nuestro fichero properties de validaciones. Pero esto es PARA TODOS LOS CAMPOS NOT NULL.
         //    Es decir, si el Password es Null también aparece ese mensaje indicando que el usuario no puede ser nulo.
         //    Si optamos por esta solución, tenemos que ser muy genéricos con los mensajes.
+        //
+        // 3. Mixto. Indicamos en el fichero de properties de mensajes el nombre indicando NotNull.message
+        //    con el texto concreto, y en la clase, en la anotación @NotNull indicamos que coja esa property.
+        //    Podemos tener distintos ficheros ValidationMessages_es.properties para mensajes en español,
+        //    o ValidationMessages_tr.properties para mensajes en turco y así tenemos la internacionalización
+        //    de los mensajes en la app.
+        //    Si probamos en postman con un lenguaje para el que no tenemos traducción nos saldrá el del fichero
+        //    por defecto (ValidationMessages.properties de Spring, no el nuestro!)
         assertThat(validationErrors.get("username")).isEqualTo("Username cannot be null");
     }
 

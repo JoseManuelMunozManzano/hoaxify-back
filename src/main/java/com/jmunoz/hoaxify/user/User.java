@@ -21,7 +21,8 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @NotNull
+    // Ahora podemos ser específicos
+    @NotNull(message = "{hoaxify.constraints.username.NotNull.message}")
     @Size(min = 4, max = 255)
     private String username;
 
