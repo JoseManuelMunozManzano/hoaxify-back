@@ -301,6 +301,10 @@ public class UserControllerTest {
         //    Pero cuando llega la segunda validación, la que hace Hibernate, él creará la instancia de esta clase,
         //    y no puede inyectar userRepository. Como no hay instancia, no se pueden ejecutar métodos definidos por
         //    el usuario y se lanza el NullPointerException.
+        //    Solución:
+        //    Como estamos manejando la validación en la aplicación y no tenemos constraints en BD, vamos a deshabilitar
+        //    la validación Hibernate. Ver application.yml
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
+
 }
