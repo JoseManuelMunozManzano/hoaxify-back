@@ -307,4 +307,13 @@ public class UserControllerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
+    @Test
+    void postUser_whenAnotherUserHasSameUsername_receiveMessageOfDuplicateUsername() {
+        userRepository.save(createValidUser());
+
+        User user = createValidUser();
+        ResponseEntity<ApiError> response = postSignup(user, ApiError.class);
+        Map<String, String> validationErrors = response.getBody().getValidationErrors();
+        assertThat(validationErrors.get("username")).isEqualTo("Este nombre se está usando");
+    }
 }

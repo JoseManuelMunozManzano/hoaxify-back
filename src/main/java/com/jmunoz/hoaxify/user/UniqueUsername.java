@@ -12,7 +12,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface UniqueUsername {
 
-    String message() default "";
+    String message() default "{hoaxify.constraints.username.UniqueUsername.message}";
 
     Class<?>[] groups() default {};
 
