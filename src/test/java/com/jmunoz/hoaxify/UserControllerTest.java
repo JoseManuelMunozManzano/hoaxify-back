@@ -290,6 +290,17 @@ public class UserControllerTest {
         //    Esto sería muy útil cuando muchas aplicaciones deben acceder a la misma BD. En este caso, la integridad
         //    de la BD podría ser un gran problema y para salvar ese problema debemos manejar las restricciones en BD.
         // 2. Vamos a manejar las restricciones con código en la app. Ver UserService.java y UserRepository.java
+        //    En vez de un custom exception handler, vamos a crear una custom annotation para tratar las validaciones
+        //    de User en el mismo sitio.
+        //    Vemos que falla porque hay un detalle importante en el comportamiento de las validaciones.
+        //    Por defecto, los validadores se usan 2 veces.
+        //    Una, decimos a Spring que valide antes de pasar al controlador.
+        //    Segunda, valida Hibernate antes de que se persista la información en BD.
+        //    En nuestro UniqueUsernameValidator le estamos indicando a Spring que inyecte userRepository.
+        //    Esto está bien cuando la primera validación la hace Spring.
+        //    Pero cuando llega la segunda validación, la que hace Hibernate, él creará la instancia de esta clase,
+        //    y no puede inyectar userRepository. Como no hay instancia, no se pueden ejecutar métodos definidos por
+        //    el usuario y se lanza el NullPointerException.
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 }
