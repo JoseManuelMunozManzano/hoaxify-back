@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.assertj.core.api.AssertionsForClassTypes.*;
+import static org.assertj.core.api.Assertions.*;
 
 // Test de integración
 
@@ -281,7 +281,7 @@ public class UserControllerTest {
 
         // Ahora mismo no hay nada que evite que se grabe el mismo usuario 2 veces.
         // Formas de solucionar el problema:
-        // 1. Establecer esta restricción a nivel de BD. Ver User.class
+        // 1. Establecer esta restricción a nivel de BD. Ver User.java
         //    Esto devuelve un error 500, no el definido en el test (404), porque no hemos definido una manera de
         //    manejar esta excepción, y entonces Spring automáticamente mapea esta respuesta al status 500.
         //    Para solucionar esto se puede añadir una exception handler y generar nuestro propio error customizado
@@ -289,6 +289,7 @@ public class UserControllerTest {
         //    Pero no vamos a coger esta solución 1.
         //    Esto sería muy útil cuando muchas aplicaciones deben acceder a la misma BD. En este caso, la integridad
         //    de la BD podría ser un gran problema y para salvar ese problema debemos manejar las restricciones en BD.
+        // 2. Vamos a manejar las restricciones con código en la app. Ver UserService.java y UserRepository.java
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 }

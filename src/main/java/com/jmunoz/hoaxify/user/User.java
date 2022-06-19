@@ -9,10 +9,8 @@ import javax.validation.constraints.Size;
 
 // Usando lombok para generar setters, getters, constructor vacío y método to toString
 // Se pone el nombre Users porque en H2 User es palabra reservada y da error al hacer consultas sobre dicho nombre.
-// Con @UniqueConstraint estamos indicando a JPA que en nuestra tabla Users, el campo username es Unique.
 @Data
 @Entity(name = "Users")
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = "username"))
 public class User {
 
     @Id
