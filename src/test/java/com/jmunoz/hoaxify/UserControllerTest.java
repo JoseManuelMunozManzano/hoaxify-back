@@ -272,4 +272,23 @@ public class UserControllerTest {
                 .isEqualTo("El password debe tener al menos una letra mayúscula, una letra minúscula y un número");
     }
 
+    @Test
+    void postUser_whenAnotherUserHasSameUsername_receiveBadRequest() {
+        userRepository.save(createValidUser());
+
+        User user = createValidUser();
+        ResponseEntity<Object> response = postSignup(user, Object.class);
+
+        // Ahora mismo no hay nada que evite que se grabe el mismo usuario 2 veces.
+        // Formas de solucionar el problema:
+        // 1. Establecer esta restricción a nivel de BD. Ver User.class
+        //    Esto devuelve un error 500, no el definido en el test (404), porque no hemos definido una manera de
+        //    manejar esta excepción, y entonces Spring automáticamente mapea esta respuesta al status 500.
+        //    Para solucionar esto se puede añadir una exception handler y generar nuestro propio error customizado
+        //    con el status code que queramos.
+        //    Pero no vamos a coger esta solución 1.
+        //    Esto sería muy útil cuando muchas aplicaciones deben acceder a la misma BD. En este caso, la integridad
+        //    de la BD podría ser un gran problema y para salvar ese problema debemos manejar las restricciones en BD.
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
 }
