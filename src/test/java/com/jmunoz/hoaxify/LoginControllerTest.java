@@ -53,4 +53,24 @@ public class LoginControllerTest {
         assertThat(response.getBody().getUrl()).isEqualTo(API_1_0_LOGIN);
     }
 
+    // Como estábamos usando ApiError para casos de errores de validaciones, recibimos
+    // el campo validationErrors, y no lo queremos para login.
+    @Test
+    void postLogin_withoutUserCredentials_receiveApiErrorWithoutValidationErrors() {
+        ResponseEntity<String> response = login(String.class);
+        assertThat(response.getBody().contains("validationErrors")).isFalse();
+    }
+
+    // Cuando enviamos la respuesta 401, tenemos que tener cuidado con los headers enviados por nuestra app.
+    // Si está el header WWW-Authenticate en la respuesta de 401, entonces el browser automáticamente hará saltar
+    // su propio formulario de log in.
+    // Tenemos que asegurarnos de no mandarlo.
+    @Test
+    void postLogin_witIncorrectCredentials_receiveUnauthorizedWithoutWWWAuthenticationHeader() {
+        authenticate();
+
+        ResponseEntity<Object> response = login(Object.class);
+        assertThat(response.getHeaders().containsKey("WWW-Authenticate")).isFalse();
+    }
+
 }

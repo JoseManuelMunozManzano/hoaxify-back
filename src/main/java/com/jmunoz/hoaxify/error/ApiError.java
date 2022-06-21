@@ -1,14 +1,17 @@
 package com.jmunoz.hoaxify.error;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
 import java.util.Map;
 
-// Esta clase va a ser nuestra respuesta de error customizada
+// Jackson provee la opción de excluir los campos null cuando el objeto se convierte a JSON
+// Se usa @JsonInclude
 @Data
 @NoArgsConstructor
+@JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class ApiError {
     private long timestamp = new Date().getTime();
 
