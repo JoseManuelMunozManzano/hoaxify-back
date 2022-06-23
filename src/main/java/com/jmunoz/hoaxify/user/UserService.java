@@ -1,6 +1,6 @@
 package com.jmunoz.hoaxify.user;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -8,12 +8,13 @@ public class UserService {
 
     UserRepository userRepository;
 
-    // Para la seguridad vamos a usar bcrypt
-    BCryptPasswordEncoder passwordEncoder;
+    // Sustituimos BCryptPasswordEncoder por PasswordEncoder genérico e inyectamos en el constructor
+    // nuestro passwordEncoder
+    PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
-        this.passwordEncoder = new BCryptPasswordEncoder();
+        this.passwordEncoder = passwordEncoder;
     }
 
     public User save(User user) {

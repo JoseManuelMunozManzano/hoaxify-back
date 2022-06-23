@@ -1,6 +1,10 @@
 package com.jmunoz.hoaxify;
 
 import com.jmunoz.hoaxify.error.ApiError;
+import com.jmunoz.hoaxify.user.User;
+import com.jmunoz.hoaxify.user.UserRepository;
+import com.jmunoz.hoaxify.user.UserService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,6 +25,18 @@ public class LoginControllerTest {
     @Autowired
     TestRestTemplate testRestTemplate;
 
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    UserService userService;
+
+    @BeforeEach
+    void setUp() {
+        userRepository.deleteAll();
+        testRestTemplate.getRestTemplate().getInterceptors().clear();
+    }
+
     public <T> ResponseEntity<T> login(Class<T> responseType) {
         return testRestTemplate.postForEntity(API_1_0_LOGIN, null, responseType);
     }
@@ -30,7 +46,7 @@ public class LoginControllerTest {
     // Como ahora mismo no tenemos usuarios en BD, cualquier usuario será incorrecto.
     private boolean authenticate() {
         return testRestTemplate
-                .getRestTemplate().getInterceptors().add(new BasicAuthenticationInterceptor("test-user", "P4sswrod"));
+                .getRestTemplate().getInterceptors().add(new BasicAuthenticationInterceptor("test-user", "P4ssword"));
     }
 
     @Test
@@ -73,4 +89,17 @@ public class LoginControllerTest {
         assertThat(response.getHeaders().containsKey("WWW-Authenticate")).isFalse();
     }
 
+    @Test
+    void postLogin_withValidCredentials_receiveOk() {
+        User user = new User();
+        user.setDisplayName("test-display");
+        user.setUsername("test-user");
+        user.setPassword("P4ssword");
+
+        userService.save(user);
+        authenticate();
+        ResponseEntity<Object> response = login(Object.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
 }
