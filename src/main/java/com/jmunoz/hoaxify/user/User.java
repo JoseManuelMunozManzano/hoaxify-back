@@ -18,6 +18,8 @@ import java.util.Collection;
 @Entity(name = "Users")
 public class User implements UserDetails {
 
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;

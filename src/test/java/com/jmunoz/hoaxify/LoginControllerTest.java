@@ -91,12 +91,7 @@ public class LoginControllerTest {
 
     @Test
     void postLogin_withValidCredentials_receiveOk() {
-        User user = new User();
-        user.setDisplayName("test-display");
-        user.setUsername("test-user");
-        user.setPassword("P4ssword");
-
-        userService.save(user);
+        userService.save(TestUtil.createValidUser());
         authenticate();
         ResponseEntity<Object> response = login(Object.class);
 
