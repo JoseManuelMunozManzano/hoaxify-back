@@ -1,5 +1,6 @@
 package com.jmunoz.hoaxify.configuration;
 
+import com.jmunoz.hoaxify.user.CustomUserDetails;
 import com.jmunoz.hoaxify.user.User;
 import com.jmunoz.hoaxify.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ public class AuthUserService implements UserDetailsService {
     //    que vienen del objeto User.
     // 2. Implementar UserDetails directamente en nuestro User entity.
     //
-    // Vamos a implementar la segunda opción.
+    // Vamos a implementar la primera opción.
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username);
@@ -31,6 +32,9 @@ public class AuthUserService implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("User not found");
         }
-        return user;
+
+        CustomUserDetails userDetails = new CustomUserDetails(user);
+
+        return userDetails;
     }
 }

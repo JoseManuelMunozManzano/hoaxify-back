@@ -40,16 +40,6 @@ public class UserControllerTest {
         userRepository.deleteAll();
     }
 
-    private User createValidUser() {
-        User user = new User();
-
-        user.setUsername("test-user");
-        user.setDisplayName("test-display");
-        user.setPassword("P4ssword");
-
-        return user;
-    }
-
     public <T> ResponseEntity<T> postSignup(Object request, Class<T> response) {
         return testRestTemplate.postForEntity(API_1_0_USERS, request, response);
     }
@@ -58,28 +48,28 @@ public class UserControllerTest {
     // methodName_condition_expectedBehavior
     @Test
     public void postUser_whenUserIsValid_receiveOk() {
-        User user = createValidUser();
+        User user = TestUtil.createValidUser();
         ResponseEntity<Object> response = postSignup(user, Object.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     @Test
     public void postUser_whenUserIsValid_userSavedToDatabase() {
-        User user = createValidUser();
+        User user = TestUtil.createValidUser();
         postSignup(user, Object.class);
         assertThat(userRepository.count()).isEqualTo(1);
     }
 
     @Test
     public void postUser_whenUserIsValid_receiveSuccessMessage() {
-        User user = createValidUser();
+        User user = TestUtil.createValidUser();
         ResponseEntity<GenericResponse> response = postSignup(user, GenericResponse.class);
         assertThat(response.getBody().getMessage()).isNotNull();
     }
 
     @Test
     void postUser_whenUserIsValid_passwordIsHashedInDatabase() {
-        User user = createValidUser();
+        User user = TestUtil.createValidUser();
         postSignup(user, Object.class);
 
         List<User> users = userRepository.findAll();
@@ -90,7 +80,7 @@ public class UserControllerTest {
 
     @Test
     void postUser_whenUserHasNullUsername_receiveBadRequest() {
-        User user = createValidUser();
+        User user = TestUtil.createValidUser();
         user.setUsername(null);
         ResponseEntity<Object> response = postSignup(user, Object.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -98,7 +88,7 @@ public class UserControllerTest {
 
     @Test
     void postUser_whenUserHasNullDisplayName_receiveBadRequest() {
-        User user = createValidUser();
+        User user = TestUtil.createValidUser();
         user.setDisplayName(null);
         ResponseEntity<Object> response = postSignup(user, Object.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -106,7 +96,7 @@ public class UserControllerTest {
 
     @Test
     void postUser_whenUserHasNullPassword_receiveBadRequest() {
-        User user = createValidUser();
+        User user = TestUtil.createValidUser();
         user.setPassword(null);
         ResponseEntity<Object> response = postSignup(user, Object.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -114,7 +104,7 @@ public class UserControllerTest {
 
     @Test
     void postUser_whenUserHasUsernameWithLessThanRequired_receiveBadRequest() {
-        User user = createValidUser();
+        User user = TestUtil.createValidUser();
         // El mínimo deben ser 4 caracteres
         user.setUsername("abc");
         ResponseEntity<Object> response = postSignup(user, Object.class);
@@ -123,7 +113,7 @@ public class UserControllerTest {
 
     @Test
     void postUser_whenUserHasDisplayNameWithLessThanRequired_receiveBadRequest() {
-        User user = createValidUser();
+        User user = TestUtil.createValidUser();
         // El mínimo deben ser 4 caracteres
         user.setDisplayName("abc");
         ResponseEntity<Object> response = postSignup(user, Object.class);
@@ -132,7 +122,7 @@ public class UserControllerTest {
 
     @Test
     void postUser_whenUserHasPasswordWithLessThanRequired_receiveBadRequest() {
-        User user = createValidUser();
+        User user = TestUtil.createValidUser();
         // El mínimo deben ser 8 caracteres, con mayúsculas, minúsculas y números
         user.setPassword("P4sswd");
         ResponseEntity<Object> response = postSignup(user, Object.class);
@@ -141,7 +131,7 @@ public class UserControllerTest {
 
     @Test
     void postUser_whenUserHasUsernameExceedsTheLengthLimit_receiveBadRequest() {
-        User user = createValidUser();
+        User user = TestUtil.createValidUser();
         // El máximo son 255 caracteres
         // Como estamos generando 256 caracteres va a dar error 500, no 404, por lo que el test falla.
         // Una vez corregido en la clase User indicando que el máximo es 255 caracteres, no pasa la
@@ -154,7 +144,7 @@ public class UserControllerTest {
 
     @Test
     void postUser_whenUserHasDisplayNameExceedsTheLengthLimit_receiveBadRequest() {
-        User user = createValidUser();
+        User user = TestUtil.createValidUser();
         String valueOf256Chars = IntStream.rangeClosed(1, 256).mapToObj(x -> "a").collect(Collectors.joining());
         user.setDisplayName(valueOf256Chars);
         ResponseEntity<Object> response = postSignup(user, Object.class);
@@ -163,7 +153,7 @@ public class UserControllerTest {
 
     @Test
     void postUser_whenUserHasPasswordExceedsTheLengthLimit_receiveBadRequest() {
-        User user = createValidUser();
+        User user = TestUtil.createValidUser();
         String valueOf256Chars = IntStream.rangeClosed(1, 256).mapToObj(x -> "a").collect(Collectors.joining());
         // Se añade A1 porque el password requiere al menos una mayúscula y un número
         user.setPassword(valueOf256Chars + "A1");
@@ -173,7 +163,7 @@ public class UserControllerTest {
 
     @Test
     void postUser_whenUserHasPasswordWithAllLowercase_receiveBadRequest() {
-        User user = createValidUser();
+        User user = TestUtil.createValidUser();
         user.setPassword("alllowercase");
         ResponseEntity<Object> response = postSignup(user, Object.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -181,7 +171,7 @@ public class UserControllerTest {
 
     @Test
     void postUser_whenUserHasPasswordWithAllUppercase_receiveBadRequest() {
-        User user = createValidUser();
+        User user = TestUtil.createValidUser();
         user.setPassword("ALLUPPERCASE");
         ResponseEntity<Object> response = postSignup(user, Object.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -189,7 +179,7 @@ public class UserControllerTest {
 
     @Test
     void postUser_whenUserHasPasswordWithAllNumbers_receiveBadRequest() {
-        User user = createValidUser();
+        User user = TestUtil.createValidUser();
         user.setPassword("123456789");
         ResponseEntity<Object> response = postSignup(user, Object.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -211,7 +201,7 @@ public class UserControllerTest {
 
     @Test
     void postUser_whenUserHasNullUsername_receiveMessageOfNullErrorForUsername() {
-        User user = createValidUser();
+        User user = TestUtil.createValidUser();
         user.setUsername(null);
         ResponseEntity<ApiError> response = postSignup(user, ApiError.class);
         Map<String, String> validationErrors = response.getBody().getValidationErrors();
@@ -245,7 +235,7 @@ public class UserControllerTest {
 
     @Test
     void postUser_whenUserHasNullPassword_receiveGenericMessageOfNullError() {
-        User user = createValidUser();
+        User user = TestUtil.createValidUser();
         user.setPassword(null);
         ResponseEntity<ApiError> response = postSignup(user, ApiError.class);
         Map<String, String> validationErrors = response.getBody().getValidationErrors();
@@ -254,7 +244,7 @@ public class UserControllerTest {
 
     @Test
     void postUser_whenUserHasInvalidLengthUsername_receiveGenericMessageOfSizeError() {
-        User user = createValidUser();
+        User user = TestUtil.createValidUser();
         user.setUsername("abc");
         ResponseEntity<ApiError> response = postSignup(user, ApiError.class);
         Map<String, String> validationErrors = response.getBody().getValidationErrors();
@@ -263,7 +253,7 @@ public class UserControllerTest {
 
     @Test
     void postUser_whenUserHasInvalidPasswordPattern_receiveMessageOfPasswordPatternError() {
-        User user = createValidUser();
+        User user = TestUtil.createValidUser();
         user.setPassword("alllowercase");
         ResponseEntity<ApiError> response = postSignup(user, ApiError.class);
         Map<String, String> validationErrors = response.getBody().getValidationErrors();
@@ -274,9 +264,9 @@ public class UserControllerTest {
 
     @Test
     void postUser_whenAnotherUserHasSameUsername_receiveBadRequest() {
-        userRepository.save(createValidUser());
+        userRepository.save(TestUtil.createValidUser());
 
-        User user = createValidUser();
+        User user = TestUtil.createValidUser();
         ResponseEntity<Object> response = postSignup(user, Object.class);
 
         // Ahora mismo no hay nada que evite que se grabe el mismo usuario 2 veces.
@@ -309,9 +299,9 @@ public class UserControllerTest {
 
     @Test
     void postUser_whenAnotherUserHasSameUsername_receiveMessageOfDuplicateUsername() {
-        userRepository.save(createValidUser());
+        userRepository.save(TestUtil.createValidUser());
 
-        User user = createValidUser();
+        User user = TestUtil.createValidUser();
         ResponseEntity<ApiError> response = postSignup(user, ApiError.class);
         Map<String, String> validationErrors = response.getBody().getValidationErrors();
         assertThat(validationErrors.get("username")).isEqualTo("Este nombre se está usando");
