@@ -1,6 +1,7 @@
 package com.jmunoz.hoaxify.user;
 
 import com.jmunoz.hoaxify.configuration.AuthUserService;
+import com.jmunoz.hoaxify.shared.CurrentUser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -19,11 +20,12 @@ public class LoginController {
     UserService userService;
 
     @PostMapping("/api/1.0/login")
-    Map<String, Object> handleLogin(Authentication authentication) {
+    Map<String, Object> handleLogin(@CurrentUser CustomUserDetails customUserDetails) {
         // Necesitamos obtener el usuario que hace log. Podemos hacerlo de 2 formas:
         // 1. Recuperándolo de SecurityContextHolder
         // 2. Pidiendo a Spring que inyecte la autenticación a nuestro método
-        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        // 3. Inyectando el objeto de usuario a nuestros métodos usando una anotación que creamos
+        // (Ver CurrentUser en el package shared).
         User user = userService.findUserByUsername(customUserDetails.getUsername());
 
         // Devolvemos el id para que pase el test
