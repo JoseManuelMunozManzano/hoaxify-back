@@ -149,4 +149,30 @@ public class LoginControllerTest {
 
         assertThat(displayName).isEqualTo(inDb.getDisplayName());
     }
+
+    @Test
+    void postLogin_withValidCredentials_receiveLoggedInUsersUserName() {
+        User inDb = userService.save(TestUtil.createValidUser());
+        authenticate();
+
+        ResponseEntity<Map<String, Object>> response = login(new ParameterizedTypeReference<Map<String, Object>>() {});
+
+        Map<String, Object> body = response.getBody();
+        String username = (String) body.get("username");
+
+        assertThat(username).isEqualTo(inDb.getUsername());
+    }
+
+    // Importante!!! No debemos recibir el password
+    @Test
+    void postLogin_withValidCredentials_notReceiveLoggedInUsersPassword() {
+        User inDb = userService.save(TestUtil.createValidUser());
+        authenticate();
+
+        ResponseEntity<Map<String, Object>> response = login(new ParameterizedTypeReference<Map<String, Object>>() {});
+
+        Map<String, Object> body = response.getBody();
+
+        assertThat(body.containsKey("password")).isFalse();
+    }
 }
