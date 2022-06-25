@@ -1,6 +1,6 @@
 package com.jmunoz.hoaxify.user;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -14,19 +14,22 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @JsonView(Views.Base.class)
     private long id;
 
     // Usamos nuestro custom Constraint @UniqueUsername
     @NotNull(message = "{hoaxify.constraints.username.NotNull.message}")
     @Size(min = 4, max = 255)
     @UniqueUsername
+    @JsonView(Views.Base.class)
     private String username;
 
     @NotNull
     @Size(min = 4, max = 255)
+    @JsonView(Views.Base.class)
     private String displayName;
 
-    // SOLUCION PARA NO ENVIAR EL PASSWORD (NO FUNCIONA)
+    // SOLUCION PARA NO ENVIAR EL PASSWORD (FORMA 2 FUNCIONA)
     // 1. Con @JsonIgnore no enviamos el password
     // Pero esto rompe algunos tests porque Jackson no solo ignora el campo para la conversión de Object a Json,
     // sino que también ignora el campo para la conversión de Json a Object.
@@ -36,11 +39,19 @@ public class User {
     // Esta solución funciona cuando realmente no queremos ni enviar ni recibir un campo en Json.
     // En este caso no queremos el password cuando construimos el Json en el servidor desde el objeto, pero
     // lo necesitamos cuando el cliente lo envía en la petición sign up.
+    //
+    // 2. JSONView. Se usa para indicar a la vista en el que el campo se incluirá en la serialización y deserialización.
+    // Es muy útil cuando se necesita incluir diferentes campos de serialización de archivos de objetos para diferentes
+    // casos de uso.
+    // Para usarlo tenemos que definir tipos View, que son básicamente interfaces vacías. Ver la interface Views.java.
+    // También anotar con @JsonView los campos indicando a que interface corresponden.
+    // Y también hace falta en nuestro LoginController, donde por ahora estamos enviando to-do nuestro user, decirle
+    // a Spring que queremos que esta respuesta sea serializada de una forma customizada (usando JsonView de nuevo)
     @NotNull
     @Size(min = 8, max = 255)
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$", message = "{hoaxify.constraints.password.Pattern.message}")
-    @JsonIgnore
     private String password;
 
+    @JsonView(Views.Base.class)
     private String image;
 }
