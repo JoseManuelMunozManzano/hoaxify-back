@@ -6,9 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.Map;
-
 @RestController
 @Slf4j
 public class LoginController {
@@ -17,14 +14,7 @@ public class LoginController {
     UserService userService;
 
     @PostMapping("/api/1.0/login")
-    Map<String, Object> handleLogin(@CurrentUser CustomUserDetails customUserDetails) {
-        User loggedInUser = userService.findUserByUsername(customUserDetails.getUsername());
-
-        Map<String, Object> userMap = new HashMap<>();
-        userMap.put("id", loggedInUser.getId());
-        userMap.put("image", loggedInUser.getImage());
-        userMap.put("displayName", loggedInUser.getDisplayName());
-
-        return userMap;
+    User handleLogin(@CurrentUser CustomUserDetails customUserDetails) {
+        return userService.findUserByUsername(customUserDetails.getUsername());
     }
 }
