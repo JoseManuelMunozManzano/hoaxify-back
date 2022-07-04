@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,6 +44,10 @@ public class UserControllerTest {
 
     public <T> ResponseEntity<T> postSignup(Object request, Class<T> response) {
         return testRestTemplate.postForEntity(API_1_0_USERS, request, response);
+    }
+
+    public <T> ResponseEntity<T> getUsers(ParameterizedTypeReference<T> responseType) {
+        return testRestTemplate.exchange(API_1_0_USERS, HttpMethod.GET, null, responseType);
     }
 
     // Para los nombres de los tests se va a usar el esquema siguiente:
@@ -263,7 +266,7 @@ public class UserControllerTest {
 
     @Test
     void getUsers_whenThereAreNoUsersInDB_receiveOK() {
-        ResponseEntity<Object> response = testRestTemplate.getForEntity(API_1_0_USERS, Object.class);
+        ResponseEntity<Object> response = getUsers(new ParameterizedTypeReference<Object>() {});
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
@@ -273,8 +276,7 @@ public class UserControllerTest {
     @Test
     void getUsers_whenThereAreNoUsersInDB_receivePageWithZeroItems() {
         // Usamos nuestra implementación de Page y el test pasa
-        ResponseEntity<TestPage<Object>> response = testRestTemplate.exchange(API_1_0_USERS, HttpMethod.GET, null,
-                new ParameterizedTypeReference<TestPage<Object>>() {});
+        ResponseEntity<TestPage<Object>> response = getUsers(new ParameterizedTypeReference<TestPage<Object>>() {});
 
         // El total de elementos de usuario en BD
         assertThat(response.getBody().getTotalElements()).isEqualTo(0);
