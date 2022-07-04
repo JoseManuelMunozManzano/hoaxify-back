@@ -272,21 +272,11 @@ public class UserControllerTest {
     // el objeto Page de Spring Data
     @Test
     void getUsers_whenThereAreNoUsersInDB_receivePageWithZeroItems() {
-        // No nos importa el tipo de objeto en Page, por eso lo ponemos genérico
-        // Pero esto falla porque getForEntity no permite el genérico Object.
-//        ResponseEntity<Page<Object>> response = testRestTemplate.getForEntity(API_1_0_USERS, Page<Object>.class);
-        // Se usa exchange()
-        // el null es el body que se añade al request, en este caso no se tiene por qué añadir nada
-        ResponseEntity<Page<Object>> response = testRestTemplate.exchange(API_1_0_USERS, HttpMethod.GET, null,
-                new ParameterizedTypeReference<Page<Object>>() {});
+        // Usamos nuestra implementación de Page y el test pasa
+        ResponseEntity<TestPage<Object>> response = testRestTemplate.exchange(API_1_0_USERS, HttpMethod.GET, null,
+                new ParameterizedTypeReference<TestPage<Object>>() {});
 
         // El total de elementos de usuario en BD
-        // Tal y como está el código sigue fallando, porque Page es una interface y necesitamos
-        // una implementación.
-        // La response que recibimos en este test contiene un body con el page response.
-        // Pero lo queremos como un objeto Page en este test.
-        // Jackson no puede convertir un String JSON a una interface.
-        // Y por eso falla el test.
         assertThat(response.getBody().getTotalElements()).isEqualTo(0);
     }
 }
