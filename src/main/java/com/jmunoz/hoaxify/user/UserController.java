@@ -3,6 +3,7 @@ package com.jmunoz.hoaxify.user;
 import com.jmunoz.hoaxify.error.ApiError;
 import com.jmunoz.hoaxify.shared.GenericResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -28,9 +29,10 @@ public class UserController {
         return new GenericResponse("User saved");
     }
 
+    // Más tarde se implementará el tipo que contendrán nuestras páginas
     @GetMapping("/users")
-    void getUsers() {
-
+    Page<?> getUsers() {
+        return userService.getUsers();
     }
 
     @ExceptionHandler({MethodArgumentNotValidException.class})

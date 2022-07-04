@@ -1,5 +1,8 @@
 package com.jmunoz.hoaxify.user;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,5 +27,12 @@ public class UserService {
 
     public User findUserByUsername(String username) {
         return userRepository.findByUsername(username);
+    }
+
+    public Page<?> getUsers() {
+        // Pageable es una interface de Spring Data y tiene la implementación Page Request.
+        // Usa 2 parámetros, el número de página y cuántos items queremos en una página.
+        Pageable pageable = PageRequest.of(0, 10);
+        return userRepository.findAll(pageable);
     }
 }
