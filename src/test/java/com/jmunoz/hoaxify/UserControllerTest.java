@@ -8,6 +8,9 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
@@ -205,31 +208,7 @@ public class UserControllerTest {
         user.setUsername(null);
         ResponseEntity<ApiError> response = postSignup(user, ApiError.class);
         Map<String, String> validationErrors = response.getBody().getValidationErrors();
-        // Esto da error porque los mensajes de error de Spring validation están en distintos idiomas.
-        // Internacionalización.
-        // Para que el test no falle hay distintas soluciones:
-        // 1. Hacer override del error en la clase User, indicando el texto que queremos enviar en el error.
-        //    No es ideal porque es un valor hardcode que nos hace perder la posibilidad de internacionalización.
-        //    Para ver este error, en Postman, en la cabecera indicar:
-        //    Accept-Language    y el valor     tr
-        //    Ahora los mensajes aparecen en turco, salvo el nuestro que sale en inglés con el texto que hemos puesto.
-        //    Si solo queremos hacer la app en un idioma, entonces si valdría.
-        //
-        // 2. Llevarnos el texto con el error a un fichero de properties separado en vez de establecerlo directamente
-        //    en la anotación @NotNull.
-        //    Creamos en resources el fichero (el nombre es obligatorio) ValidationMessages.properties
-        //    Esta solución conlleva un problema. Estamos sobreescribiendo el mensaje NotNull con el valor añadido
-        //    en nuestro fichero properties de validaciones. Pero esto es PARA TODOS LOS CAMPOS NOT NULL.
-        //    Es decir, si el Password es Null también aparece ese mensaje indicando que el usuario no puede ser nulo.
-        //    Si optamos por esta solución, tenemos que ser muy genéricos con los mensajes.
-        //
-        // 3. Mixto. Indicamos en el fichero de properties de mensajes el nombre indicando NotNull.message
-        //    con el texto concreto, y en la clase, en la anotación @NotNull indicamos que coja esa property.
-        //    Podemos tener distintos ficheros ValidationMessages_en.properties para mensajes en español,
-        //    o ValidationMessages_tr.properties para mensajes en turco y así tenemos la internacionalización
-        //    de los mensajes en la app.
-        //    Si probamos en postman con un lenguaje para el que no tenemos traducción nos saldrá el del fichero
-        //    por defecto (ValidationMessages.properties de Spring, no el nuestro!)
+        
         assertThat(validationErrors.get("username")).isEqualTo("Username no puede ser nulo");
     }
 
@@ -268,32 +247,7 @@ public class UserControllerTest {
 
         User user = TestUtil.createValidUser();
         ResponseEntity<Object> response = postSignup(user, Object.class);
-
-        // Ahora mismo no hay nada que evite que se grabe el mismo usuario 2 veces.
-        // Formas de solucionar el problema:
-        // 1. Establecer esta restricción a nivel de BD. Ver User.java
-        //    Esto devuelve un error 500, no el definido en el test (404), porque no hemos definido una manera de
-        //    manejar esta excepción, y entonces Spring automáticamente mapea esta respuesta al status 500.
-        //    Para solucionar esto se puede añadir una exception handler y generar nuestro propio error customizado
-        //    con el status code que queramos.
-        //    Pero no vamos a coger esta solución 1.
-        //    Esto sería muy útil cuando muchas aplicaciones deben acceder a la misma BD. En este caso, la integridad
-        //    de la BD podría ser un gran problema y para salvar ese problema debemos manejar las restricciones en BD.
-        // 2. Vamos a manejar las restricciones con código en la app. Ver UserService.java y UserRepository.java
-        //    En vez de un custom exception handler, vamos a crear una custom annotation para tratar las validaciones
-        //    de User en el mismo sitio.
-        //    Vemos que falla porque hay un detalle importante en el comportamiento de las validaciones.
-        //    Por defecto, los validadores se usan 2 veces.
-        //    Una, decimos a Spring que valide antes de pasar al controlador.
-        //    Segunda, valida Hibernate antes de que se persista la información en BD.
-        //    En nuestro UniqueUsernameValidator le estamos indicando a Spring que inyecte userRepository.
-        //    Esto está bien cuando la primera validación la hace Spring.
-        //    Pero cuando llega la segunda validación, la que hace Hibernate, él creará la instancia de esta clase,
-        //    y no puede inyectar userRepository. Como no hay instancia, no se pueden ejecutar métodos definidos por
-        //    el usuario y se lanza el NullPointerException.
-        //    Solución:
-        //    Como estamos manejando la validación en la aplicación y no tenemos constraints en BD, vamos a deshabilitar
-        //    la validación Hibernate. Ver application.yml
+        
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
@@ -305,5 +259,12 @@ public class UserControllerTest {
         ResponseEntity<ApiError> response = postSignup(user, ApiError.class);
         Map<String, String> validationErrors = response.getBody().getValidationErrors();
         assertThat(validationErrors.get("username")).isEqualTo("Este nombre se está usando");
+    }
+
+    @Test
+    void getUsers_whenThereAreNoUsersInDB_receiveOK() {
+        ResponseEntity<Object> response = testRestTemplate.getForEntity(API_1_0_USERS, Object.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 }
