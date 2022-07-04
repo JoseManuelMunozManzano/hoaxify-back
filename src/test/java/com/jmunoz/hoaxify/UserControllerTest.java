@@ -281,4 +281,14 @@ public class UserControllerTest {
         // El total de elementos de usuario en BD
         assertThat(response.getBody().getTotalElements()).isEqualTo(0);
     }
+
+    @Test
+    void getUsers_whenThereIsAUserInDB_receivePageWithUser() {
+        userRepository.save(TestUtil.createValidUser());
+
+        ResponseEntity<TestPage<Object>> response = getUsers(new ParameterizedTypeReference<TestPage<Object>>() {});
+
+        // Aquí usamos getNumberOfElements, que es el número de usuarios en la página actual que viene en la response
+        assertThat(response.getBody().getNumberOfElements()).isEqualTo(1);
+    }
 }
