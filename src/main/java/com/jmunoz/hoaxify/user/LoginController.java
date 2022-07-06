@@ -14,6 +14,9 @@ public class LoginController {
     @Autowired
     UserService userService;
 
+    // Sobre Projection, indicar que estamos devolviendo aquí esta versión limitada de nuestro objeto User.
+    // Si descartamos la opción JsonView y continuamos con Projection, necesitaremos convertir nuestro objeto User
+    // en nuestra implementación UserProjection, así que necesitaremos una implementación concreta de UserProjection.
     @PostMapping("/api/1.0/login")
     @JsonView(Views.Base.class)
     User handleLogin(@CurrentUser CustomUserDetails customUserDetails) {

@@ -311,13 +311,19 @@ public class UserControllerTest {
         // Page no es un objeto nuestro, así que no podemos añadir la anotación @JsonView a sus campos,
         // pero podemos configurar el comportamiento de serialización de Jackson para objeto Page.
         //
-        // Se crea en el paquete configuration la clase SerializationConfiguration.
+        // 1. Se crea en el paquete configuration la clase SerializationConfiguration.
         // Notar que si UserController devolviera un objeto List en vez de Page, esta configuración de la
         // serialización no sería necesaria.
         // Esta solución aportada no siempre es la mejor. Si los objetos del modelo de dominio se hace más
         // grande con relaciones con otras entidades, manejar la salida de JSON se hace más difícil.
         //
         // Se va a ofrecer alternativas de serialización.
+        //
+        // 2. Se puede resolver este problema en el repository. Podemos pedirle que devuelva
+        // el objeto que queremos. Ver clase UseProjection en package user.
+        // Projection proporciona opciones flexibles de generación de nuestros modelos.
+        // Como desventaja, indicar que nos fuerza a escribir funciones Projection en nuestro repository.
+        // Tampoco se va a utilizar esta solución por el "problema" indicado en LoginController.
         assertThat(entity.containsKey("password")).isFalse();
     }
 }

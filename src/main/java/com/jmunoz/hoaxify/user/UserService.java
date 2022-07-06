@@ -30,9 +30,8 @@ public class UserService {
     }
 
     public Page<?> getUsers() {
-        // Pageable es una interface de Spring Data y tiene la implementación Page Request.
-        // Usa 2 parámetros, el número de página y cuántos items queremos en una página.
         Pageable pageable = PageRequest.of(0, 10);
-        return userRepository.findAll(pageable);
+        // En vez de usar findAll se va a usar nuestra SQL nativa que guarda datos en nuestra interface UserProjection
+        return userRepository.getAllUsersProjection(pageable);
     }
 }
