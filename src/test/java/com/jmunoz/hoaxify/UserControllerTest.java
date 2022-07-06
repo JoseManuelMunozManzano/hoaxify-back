@@ -291,4 +291,25 @@ public class UserControllerTest {
         // Aquí usamos getNumberOfElements, que es el número de usuarios en la página actual que viene en la response
         assertThat(response.getBody().getNumberOfElements()).isEqualTo(1);
     }
+
+    @Test
+    void getUsers_whenThereIsAUserInDB_receiveUserWithoutPassword() {
+        userRepository.save(TestUtil.createValidUser());
+
+        // Aquí ya podríamos usar User, pero por ahora no vamos a ser muy estrictos con lo que esperamos
+        ResponseEntity<TestPage<Map<String, Object>>> response =
+                getUsers(new ParameterizedTypeReference<TestPage<Map<String, Object>>>() {});
+
+        // Muy parecido a lo que se hizo en LoginController, salvo que ahora estamos recibiendo un Objeto Page
+        Map<String, Object> entity = response.getBody().getContent().get(0);
+
+        // Para solucionar el problema de que venga el password en el response, en LoginController incluimos
+        // la anotación @JsonView. Lo mismo vamos a hacer en UserController.
+        // Pero esto por si solo falla porque no solo estamos devolviendo el objeto User. En este caso
+        // estamos devolviendo un objeto Page y este no tiene anotaciones @JsonView, así que Jackson
+        // está descartando todos los campos y la aplicación está devolviendo un objeto vacío.
+        // Page no es un objeto nuestro, así que no podemos añadir la anotación @JsonView a sus campos,
+        // pero podemos configurar el comportamiento de serialización de Jackson para objeto Page.
+        assertThat(entity.containsKey("password")).isFalse();
+    }
 }

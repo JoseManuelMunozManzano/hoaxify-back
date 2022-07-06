@@ -1,5 +1,6 @@
 package com.jmunoz.hoaxify.user;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.jmunoz.hoaxify.error.ApiError;
 import com.jmunoz.hoaxify.shared.GenericResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,7 @@ public class UserController {
 
     // Más tarde se implementará el tipo que contendrán nuestras páginas
     @GetMapping("/users")
+    @JsonView(Views.Base.class)
     Page<?> getUsers() {
         return userService.getUsers();
     }
