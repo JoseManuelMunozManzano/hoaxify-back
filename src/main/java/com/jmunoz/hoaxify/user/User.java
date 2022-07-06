@@ -14,19 +14,16 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @JsonView(Views.Base.class)
     private long id;
 
     // Usamos nuestro custom Constraint @UniqueUsername
     @NotNull(message = "{hoaxify.constraints.username.NotNull.message}")
     @Size(min = 4, max = 255)
     @UniqueUsername
-    @JsonView(Views.Base.class)
     private String username;
 
     @NotNull
     @Size(min = 4, max = 255)
-    @JsonView(Views.Base.class)
     private String displayName;
 
     // SOLUCION PARA NO ENVIAR EL PASSWORD (FORMA 2 FUNCIONA)
@@ -52,6 +49,5 @@ public class User {
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$", message = "{hoaxify.constraints.password.Pattern.message}")
     private String password;
 
-    @JsonView(Views.Base.class)
     private String image;
 }

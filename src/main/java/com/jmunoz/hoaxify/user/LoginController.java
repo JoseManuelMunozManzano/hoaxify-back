@@ -1,7 +1,7 @@
 package com.jmunoz.hoaxify.user;
 
-import com.fasterxml.jackson.annotation.JsonView;
 import com.jmunoz.hoaxify.shared.CurrentUser;
+import com.jmunoz.hoaxify.user.vm.UserVM;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,12 +14,9 @@ public class LoginController {
     @Autowired
     UserService userService;
 
-    // Sobre Projection, indicar que estamos devolviendo aquí esta versión limitada de nuestro objeto User.
-    // Si descartamos la opción JsonView y continuamos con Projection, necesitaremos convertir nuestro objeto User
-    // en nuestra implementación UserProjection, así que necesitaremos una implementación concreta de UserProjection.
+    // Vamos a utilizar el enfoque VM (o DTO) y eliminar @JsonView
     @PostMapping("/api/1.0/login")
-    @JsonView(Views.Base.class)
-    User handleLogin(@CurrentUser CustomUserDetails customUserDetails) {
-        return userService.findUserByUsername(customUserDetails.getUsername());
+    UserVM handleLogin(@CurrentUser CustomUserDetails customUserDetails) {
+        return new UserVM(userService.findUserByUsername(customUserDetails.getUsername()));
     }
 }

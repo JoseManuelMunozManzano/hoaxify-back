@@ -29,9 +29,9 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
-    public Page<?> getUsers() {
+    // Volvemos a nuestro findAll y devolvemos un Page<User>
+    public Page<User> getUsers() {
         Pageable pageable = PageRequest.of(0, 10);
-        // En vez de usar findAll se va a usar nuestra SQL nativa que guarda datos en nuestra interface UserProjection
-        return userRepository.getAllUsersProjection(pageable);
+        return userRepository.findAll(pageable);
     }
 }

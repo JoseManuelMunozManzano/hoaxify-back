@@ -324,6 +324,12 @@ public class UserControllerTest {
         // Projection proporciona opciones flexibles de generación de nuestros modelos.
         // Como desventaja, indicar que nos fuerza a escribir funciones Projection en nuestro repository.
         // Tampoco se va a utilizar esta solución por el "problema" indicado en LoginController.
+        //
+        // 3. Para el lado View existe un enfoque mås común cuando se trata de modelar el objeto de dominio.
+        // Se le suele llamar DTO (Data Transfer Object) o VM (View Model)
+        // Ver UserVM
+        // Este es el enfoque que se va a usar y se ha cambiado también LoginController.
+        // Se elimina Views.java y SerializationConfiguration.java porque ya no hacen falta y se corrigen los errores.
         assertThat(entity.containsKey("password")).isFalse();
     }
 }

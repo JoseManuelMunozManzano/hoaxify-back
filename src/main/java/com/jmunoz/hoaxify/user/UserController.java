@@ -1,8 +1,8 @@
 package com.jmunoz.hoaxify.user;
 
-import com.fasterxml.jackson.annotation.JsonView;
 import com.jmunoz.hoaxify.error.ApiError;
 import com.jmunoz.hoaxify.shared.GenericResponse;
+import com.jmunoz.hoaxify.user.vm.UserVM;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -23,18 +23,18 @@ public class UserController {
     @Autowired
     UserService userService;
 
-    // Refactor
     @PostMapping("/users")
     GenericResponse createUser(@Valid @RequestBody User user) {
         userService.save(user);
         return new GenericResponse("User saved");
     }
 
-    // Más tarde se implementará el tipo que contendrán nuestras páginas
+    // Eliminamos @JsonView e indicamos que devolvemos un Page del tipo UserVM
     @GetMapping("/users")
-    @JsonView(Views.Base.class)
-    Page<?> getUsers() {
-        return userService.getUsers();
+    // Tenemos que convertir de User (lo devuelve nuestro UserService) a UserVM usando la función map que tiene
+    // Page.
+    Page<UserVM> getUsers() {
+        return userService.getUsers().map(UserVM::new);
     }
 
     @ExceptionHandler({MethodArgumentNotValidException.class})
