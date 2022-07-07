@@ -358,4 +358,13 @@ public class UserControllerTest {
         // 2. A nivel de controlador se sobreescribe el defaultPageSize
         assertThat(response.getBody().getSize()).isEqualTo(10);
     }
+
+    @Test
+    void getUsers_whenPageSizeIsGreaterThan100_receivePageSizeAs100() {
+        String path = API_1_0_USERS + "?size=500";
+        ResponseEntity<TestPage<Object>> response = getUsers(path, new ParameterizedTypeReference<TestPage<Object>>() {});
+        // El valor por defecto en la clase SpringDataWebProperties es maxPageSize = 2000
+        // Lo sobreescribimos en application.yml
+        assertThat(response.getBody().getSize()).isEqualTo(100);
+    }
 }

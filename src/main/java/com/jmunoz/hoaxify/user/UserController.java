@@ -31,9 +31,8 @@ public class UserController {
         return new GenericResponse("User saved");
     }
 
-    // Con la anotación @PageableDefault se puede modificar, a nivel de método, los valores por defecto de Pageable.
     @GetMapping("/users")
-    Page<UserVM> getUsers(@PageableDefault(size = 10) Pageable page) {
+    Page<UserVM> getUsers(@PageableDefault Pageable page) {
         return userService.getUsers(page).map(UserVM::new);
     }
 
