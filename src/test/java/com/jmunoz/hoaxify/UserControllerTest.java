@@ -4,15 +4,16 @@ import com.jmunoz.hoaxify.error.ApiError;
 import com.jmunoz.hoaxify.shared.GenericResponse;
 import com.jmunoz.hoaxify.user.User;
 import com.jmunoz.hoaxify.user.UserRepository;
+import com.jmunoz.hoaxify.user.UserService;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
@@ -38,9 +39,14 @@ public class UserControllerTest {
     @Autowired
     UserRepository userRepository;
 
+    // Para autenticar el usuario
+    @Autowired
+    UserService userService;
+
     @BeforeEach
     void cleanup() {
         userRepository.deleteAll();
+        testRestTemplate.getRestTemplate().getInterceptors().clear();
     }
 
     public <T> ResponseEntity<T> postSignup(Object request, Class<T> response) {
@@ -53,6 +59,11 @@ public class UserControllerTest {
 
     public <T> ResponseEntity<T> getUsers(String path, ParameterizedTypeReference<T> responseType) {
         return testRestTemplate.exchange(path, HttpMethod.GET, null, responseType);
+    }
+
+    private boolean authenticate(String username) {
+        return testRestTemplate
+                .getRestTemplate().getInterceptors().add(new BasicAuthenticationInterceptor(username, "P4ssword"));
     }
 
     // Para los nombres de los tests se va a usar el esquema siguiente:
@@ -382,5 +393,17 @@ public class UserControllerTest {
         ResponseEntity<TestPage<Object>> response = getUsers(path, new ParameterizedTypeReference<TestPage<Object>>() {});
         // Esto ya funciona porque el default es 0 (primera página)
         assertThat(response.getBody().getNumber()).isEqualTo(0);
+    }
+
+    @Test
+    void getUsers_whenUserLoggedIn_receivePageWithoutLoggedInUser() {
+        userService.save(TestUtil.createValidUser("user1"));
+        userService.save(TestUtil.createValidUser("user2"));
+        userService.save(TestUtil.createValidUser("user3"));
+        authenticate("user1");
+
+        ResponseEntity<TestPage<Object>> response = getUsers(new ParameterizedTypeReference<TestPage<Object>>() {});
+
+        assertThat(response.getBody().getTotalElements()).isEqualTo(2);
     }
 }

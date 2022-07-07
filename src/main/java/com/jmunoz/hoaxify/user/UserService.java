@@ -28,7 +28,10 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
-    public Page<User> getUsers(Pageable pageable) {
+    public Page<User> getUsers(User loggedInUser, Pageable pageable) {
+        if (loggedInUser != null) {
+            return userRepository.findByUsernameNot(loggedInUser.getUsername(), pageable);
+        }
         return userRepository.findAll(pageable);
     }
 }

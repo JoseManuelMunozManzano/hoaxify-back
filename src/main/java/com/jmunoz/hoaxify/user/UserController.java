@@ -1,6 +1,7 @@
 package com.jmunoz.hoaxify.user;
 
 import com.jmunoz.hoaxify.error.ApiError;
+import com.jmunoz.hoaxify.shared.CurrentUser;
 import com.jmunoz.hoaxify.shared.GenericResponse;
 import com.jmunoz.hoaxify.user.vm.UserVM;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,9 +32,14 @@ public class UserController {
         return new GenericResponse("User saved");
     }
 
+    // Obtenemos el usuario que se ha loggeado
     @GetMapping("/users")
-    Page<UserVM> getUsers(@PageableDefault Pageable page) {
-        return userService.getUsers(page).map(UserVM::new);
+    Page<UserVM> getUsers(@CurrentUser CustomUserDetails loggedInUser, @PageableDefault Pageable page) {
+        User user = null;
+        if (loggedInUser != null) {
+            user = userService.findUserByUsername(loggedInUser.getUsername());
+        }
+        return userService.getUsers(user, page).map(UserVM::new);
     }
 
     @ExceptionHandler({MethodArgumentNotValidException.class})
