@@ -6,6 +6,7 @@ import com.jmunoz.hoaxify.user.User;
 import com.jmunoz.hoaxify.user.UserRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
@@ -347,5 +348,13 @@ public class UserControllerTest {
                 getUsers(path, new ParameterizedTypeReference<TestPage<Object>>() {});
 
         assertThat(response.getBody().getContent().size()).isEqualTo(3);
+    }
+
+    @Test
+    void getUsers_whenPageSizeNotProvided_receivePageSizeAs10() {
+        ResponseEntity<TestPage<Object>> response = getUsers(new ParameterizedTypeReference<TestPage<Object>>() {});
+        // Este test falla porque por defecto, en SpringDataWebProperties se indica que defaultPageSize es 20.
+        // 1. Se puede sobreescribir este valor en application.yml y queda para toda la aplicación.
+        assertThat(response.getBody().getSize()).isEqualTo(10);
     }
 }

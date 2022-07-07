@@ -40,8 +40,8 @@ public class UserController {
     // Pageable que ya hemos usado en nuestro service.
     // Vamos a refactorizar este método.
     // Pageable viene de Spring Data
-    // Si entramos al fuente de Pageable veremos que espera page y size, pero nuestros parámetros se llaman
-    // currentPage y pageSize.
+    // Si entramos al fuente de SpringDataWebProperties veremos que espera page y size, pero nuestros parámetros
+    // se llaman currentPage y pageSize.
     // Hay 2 opciones:
     // 1. Cambiar la configuración Pageable y usar nuestros nombres de parámetros. Esto se hace en
     //    application.yml
