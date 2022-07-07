@@ -5,6 +5,7 @@ import com.jmunoz.hoaxify.shared.GenericResponse;
 import com.jmunoz.hoaxify.user.vm.UserVM;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -33,10 +34,20 @@ public class UserController {
     // Los hacemos no requeridos y damos valor por defecto para evitar el null con tipos primitivos.
     // Pasar el tipo a Integer es peor porque tenemos que tener en cuenta validaciones con null
     // Así no fallan los tests que no provean estos valores.
+    //
+    // Tenemos requerimientos en la lógica de la Paginación como la página máxima o valores negativos.
+    // Spring nos ayuda a manejar estos requerimientos. Hay objetos configurables para este propósito como
+    // Pageable que ya hemos usado en nuestro service.
+    // Vamos a refactorizar este método.
+    // Pageable viene de Spring Data
+    // Si entramos al fuente de Pageable veremos que espera page y size, pero nuestros parámetros se llaman
+    // currentPage y pageSize.
+    // Hay 2 opciones:
+    // 1. Cambiar la configuración Pageable y usar nuestros nombres de parámetros. Esto se hace en
+    //    application.yml
     @GetMapping("/users")
-    Page<UserVM> getUsers(@RequestParam(required = false, defaultValue = "0") int currentPage,
-                          @RequestParam(required = false, defaultValue = "20") int pageSize) {
-        return userService.getUsers(currentPage, pageSize).map(UserVM::new);
+    Page<UserVM> getUsers(Pageable page) {
+        return userService.getUsers(page).map(UserVM::new);
     }
 
     @ExceptionHandler({MethodArgumentNotValidException.class})
