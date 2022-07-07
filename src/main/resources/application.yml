@@ -11,11 +11,6 @@ spring:
         persistence:
           validation:
             mode: none
-  data:
-    web:
-      pageable:
-        page-parameter: currentPage
-        size-parameter: pageSize
 
 server:
   error:

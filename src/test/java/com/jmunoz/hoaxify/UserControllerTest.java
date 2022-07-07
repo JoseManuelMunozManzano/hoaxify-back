@@ -342,7 +342,7 @@ public class UserControllerTest {
         IntStream.rangeClosed(1, 20).mapToObj(i -> "test-user-" + i).map(TestUtil::createValidUser)
                 .forEach(userRepository::save);
 
-        String path = API_1_0_USERS + "?currentPage=0&pageSize=3";
+        String path = API_1_0_USERS + "?page=0&size=3";
         ResponseEntity<TestPage<Object>> response =
                 getUsers(path, new ParameterizedTypeReference<TestPage<Object>>() {});
 

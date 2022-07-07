@@ -45,6 +45,7 @@ public class UserController {
     // Hay 2 opciones:
     // 1. Cambiar la configuración Pageable y usar nuestros nombres de parámetros. Esto se hace en
     //    application.yml
+    // 2. Sustituimos en el test (y en la app) los parámetros a los por defecto
     @GetMapping("/users")
     Page<UserVM> getUsers(Pageable page) {
         return userService.getUsers(page).map(UserVM::new);
