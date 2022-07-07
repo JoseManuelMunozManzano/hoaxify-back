@@ -355,6 +355,7 @@ public class UserControllerTest {
         ResponseEntity<TestPage<Object>> response = getUsers(new ParameterizedTypeReference<TestPage<Object>>() {});
         // Este test falla porque por defecto, en SpringDataWebProperties se indica que defaultPageSize es 20.
         // 1. Se puede sobreescribir este valor en application.yml y queda para toda la aplicación.
+        // 2. A nivel de controlador se sobreescribe el defaultPageSize
         assertThat(response.getBody().getSize()).isEqualTo(10);
     }
 }
