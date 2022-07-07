@@ -50,6 +50,10 @@ public class UserControllerTest {
         return testRestTemplate.exchange(API_1_0_USERS, HttpMethod.GET, null, responseType);
     }
 
+    public <T> ResponseEntity<T> getUsers(String path, ParameterizedTypeReference<T> responseType) {
+        return testRestTemplate.exchange(path, HttpMethod.GET, null, responseType);
+    }
+
     // Para los nombres de los tests se va a usar el esquema siguiente:
     // methodName_condition_expectedBehavior
     @Test
@@ -331,5 +335,17 @@ public class UserControllerTest {
         // Este es el enfoque que se va a usar y se ha cambiado también LoginController.
         // Se elimina Views.java y SerializationConfiguration.java porque ya no hacen falta y se corrigen los errores.
         assertThat(entity.containsKey("password")).isFalse();
+    }
+
+    @Test
+    void getUsers_whenPageIsRequestedFor3ItemsPerPageWhereTheDatabaseHas20Users_receive3Users() {
+        IntStream.rangeClosed(1, 20).mapToObj(i -> "test-user-" + i).map(TestUtil::createValidUser)
+                .forEach(userRepository::save);
+
+        String path = API_1_0_USERS + "?currentPage=0&pageSize=3";
+        ResponseEntity<TestPage<Object>> response =
+                getUsers(path, new ParameterizedTypeReference<TestPage<Object>>() {});
+
+        assertThat(response.getBody().getContent().size()).isEqualTo(3);
     }
 }

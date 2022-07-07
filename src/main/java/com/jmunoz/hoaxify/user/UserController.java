@@ -29,12 +29,14 @@ public class UserController {
         return new GenericResponse("User saved");
     }
 
-    // Eliminamos @JsonView e indicamos que devolvemos un Page del tipo UserVM
+    // La página actual y el número de elementos por página se pasa por parámetro en el request. Vendrá en la URL
+    // Los hacemos no requeridos y damos valor por defecto para evitar el null con tipos primitivos.
+    // Pasar el tipo a Integer es peor porque tenemos que tener en cuenta validaciones con null
+    // Así no fallan los tests que no provean estos valores.
     @GetMapping("/users")
-    // Tenemos que convertir de User (lo devuelve nuestro UserService) a UserVM usando la función map que tiene
-    // Page.
-    Page<UserVM> getUsers() {
-        return userService.getUsers().map(UserVM::new);
+    Page<UserVM> getUsers(@RequestParam(required = false, defaultValue = "0") int currentPage,
+                          @RequestParam(required = false, defaultValue = "20") int pageSize) {
+        return userService.getUsers(currentPage, pageSize).map(UserVM::new);
     }
 
     @ExceptionHandler({MethodArgumentNotValidException.class})
