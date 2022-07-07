@@ -367,4 +367,20 @@ public class UserControllerTest {
         // Lo sobreescribimos en application.yml
         assertThat(response.getBody().getSize()).isEqualTo(100);
     }
+
+    @Test
+    void getUsers_whenPageSizeIsNegative_receivePageSizeAs10() {
+        String path = API_1_0_USERS + "?size=-5";
+        ResponseEntity<TestPage<Object>> response = getUsers(path, new ParameterizedTypeReference<TestPage<Object>>() {});
+        // Esto ya funciona porque el default es 10
+        assertThat(response.getBody().getSize()).isEqualTo(10);
+    }
+
+    @Test
+    void getUsers_whenPageIsNegative_receiveFirstPage() {
+        String path = API_1_0_USERS + "?page=-5";
+        ResponseEntity<TestPage<Object>> response = getUsers(path, new ParameterizedTypeReference<TestPage<Object>>() {});
+        // Esto ya funciona porque el default es 0 (primera página)
+        assertThat(response.getBody().getNumber()).isEqualTo(0);
+    }
 }
