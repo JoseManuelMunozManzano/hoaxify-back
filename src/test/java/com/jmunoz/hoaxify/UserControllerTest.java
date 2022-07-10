@@ -420,4 +420,13 @@ public class UserControllerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
+
+    @Test
+    void getUserByUsername_whenUserExist_receiveUserWithoutPassword() {
+        String username = "test-user";
+        userService.save(TestUtil.createValidUser(username));
+        ResponseEntity<String> response = getUser(username, String.class);
+
+        assertThat(response.getBody().contains("password")).isFalse();
+    }
 }
