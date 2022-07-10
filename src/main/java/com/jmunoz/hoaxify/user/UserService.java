@@ -1,5 +1,6 @@
 package com.jmunoz.hoaxify.user;
 
+import com.jmunoz.hoaxify.error.NotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -36,6 +37,11 @@ public class UserService {
     }
 
     public User getByUsername(String username) {
-        return userRepository.findByUsername(username);
+        User inDB = userRepository.findByUsername(username);
+        if (inDB == null) {
+            throw new NotFoundException(username + " not found");
+        }
+
+        return inDB;
     }
 }

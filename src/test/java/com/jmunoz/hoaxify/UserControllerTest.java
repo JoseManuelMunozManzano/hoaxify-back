@@ -429,4 +429,14 @@ public class UserControllerTest {
 
         assertThat(response.getBody().contains("password")).isFalse();
     }
+
+    @Test
+    void getUserByUsername_whenUserDoesNotExist_receiveNotFound() {
+        ResponseEntity<Object> response = getUser("unknown-user", Object.class);
+        // Falla porque user es un null object y lo estamos intentando convertir a UserVM.
+        // Esto dispara la excepción NullPointerException y no estamos convirtiendo el response status
+        // de esta excepción, por lo que por defecto Spring devuelve status 500.
+        // Se va a corregir con un Custom Exception. Ver el paquete error, clase NotFoundException
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
 }
