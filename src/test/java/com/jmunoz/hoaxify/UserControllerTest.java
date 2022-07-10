@@ -61,6 +61,11 @@ public class UserControllerTest {
         return testRestTemplate.exchange(path, HttpMethod.GET, null, responseType);
     }
 
+    public <T> ResponseEntity<T> getUser(String username, Class<T> responseType) {
+        String path = API_1_0_USERS + "/" + username;
+        return testRestTemplate.getForEntity(path, responseType);
+    }
+
     private boolean authenticate(String username) {
         return testRestTemplate
                 .getRestTemplate().getInterceptors().add(new BasicAuthenticationInterceptor(username, "P4ssword"));
@@ -405,5 +410,14 @@ public class UserControllerTest {
         ResponseEntity<TestPage<Object>> response = getUsers(new ParameterizedTypeReference<TestPage<Object>>() {});
 
         assertThat(response.getBody().getTotalElements()).isEqualTo(2);
+    }
+
+    @Test
+    void getUserByUsername_whenUserExist_receiveOk() {
+        String username = "test-user";
+        userService.save(TestUtil.createValidUser(username));
+        ResponseEntity<Object> response = getUser(username, Object.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 }
