@@ -439,4 +439,12 @@ public class UserControllerTest {
         // Se va a corregir con un Custom Exception. Ver el paquete error, clase NotFoundException
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
+
+    @Test
+    void getUserByUsername_whenUserDoesNotExist_receiveApiError() {
+        ResponseEntity<ApiError> response = getUser("unknown-user", ApiError.class);
+        // Al lanzar NotFoundException estamos enviando como mensaje el username, de ahí que tiene que contenerlo.
+        // Esto ya funciona sin meter código porque las excepciones no manejadas se manejan en la clase ErrorHandler.
+        assertThat(response.getBody().getMessage().contains("unknown-user")).isTrue();
+    }
 }
