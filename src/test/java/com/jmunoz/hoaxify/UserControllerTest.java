@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -64,6 +65,11 @@ public class UserControllerTest {
     public <T> ResponseEntity<T> getUser(String username, Class<T> responseType) {
         String path = API_1_0_USERS + "/" + username;
         return testRestTemplate.getForEntity(path, responseType);
+    }
+
+    public <T> ResponseEntity<T> putUser(long id, HttpEntity<?> requestEntity, Class<T> responseType) {
+        String path = API_1_0_USERS + "/" + id;
+        return testRestTemplate.exchange(path, HttpMethod.PUT, requestEntity, responseType);
     }
 
     private boolean authenticate(String username) {
@@ -450,10 +456,7 @@ public class UserControllerTest {
 
     @Test
     void putUser_whenUnauthorizedUserSendsTheRequest_receiveUnauthorized() {
-        // El usuario realmente no importa porque vamos a devolver Unauthorized
-        String path = API_1_0_USERS + "/123";
-        // Usamos exchange porque put no devuelve respuesta
-        ResponseEntity<Object> response = testRestTemplate.exchange(path, HttpMethod.PUT, null, Object.class);
+        ResponseEntity<Object> response = putUser(123, null, Object.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
     }
