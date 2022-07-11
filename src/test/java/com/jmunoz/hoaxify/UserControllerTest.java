@@ -447,4 +447,14 @@ public class UserControllerTest {
         // Esto ya funciona sin meter código porque las excepciones no manejadas se manejan en la clase ErrorHandler.
         assertThat(response.getBody().getMessage().contains("unknown-user")).isTrue();
     }
+
+    @Test
+    void putUser_whenUnauthorizedUserSendsTheRequest_receiveUnauthorized() {
+        // El usuario realmente no importa porque vamos a devolver Unauthorized
+        String path = API_1_0_USERS + "/123";
+        // Usamos exchange porque put no devuelve respuesta
+        ResponseEntity<Object> response = testRestTemplate.exchange(path, HttpMethod.PUT, null, Object.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+    }
 }

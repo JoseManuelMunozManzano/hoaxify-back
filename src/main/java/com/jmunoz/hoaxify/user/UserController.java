@@ -48,6 +48,12 @@ public class UserController {
         return new UserVM(user);
     }
 
+    // Se indica usando regex que el id es un numérico
+    @PutMapping("/users/{id:[0-9]+}")
+    void updateUser() {
+
+    }
+
     @ExceptionHandler({MethodArgumentNotValidException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     ApiError handleValidationException(MethodArgumentNotValidException exception, HttpServletRequest request) {

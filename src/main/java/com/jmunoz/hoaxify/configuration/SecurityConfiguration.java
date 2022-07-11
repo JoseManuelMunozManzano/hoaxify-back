@@ -35,7 +35,10 @@ public class SecurityConfiguration {
         http.httpBasic().authenticationEntryPoint(new BasicAuthenticationEntryPoint());
 
         http
-                .authorizeRequests().antMatchers(HttpMethod.POST, "/api/1.0/login").authenticated()
+                .authorizeRequests()
+                .antMatchers(HttpMethod.POST, "/api/1.0/login").authenticated()
+                // Se añade a la configuración de la seguridad el endpoint con PUT
+                .antMatchers(HttpMethod.PUT, "/api/1.0/users/{id:[0-9]+}").authenticated()
                 .and()
                 .authorizeRequests().anyRequest().permitAll();
 
