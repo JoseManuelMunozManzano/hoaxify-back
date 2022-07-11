@@ -476,4 +476,22 @@ public class UserControllerTest {
         //    Hay que activar esta característica (ver SecurityConfiguration)
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
+
+    @Test
+    void putUser_whenUnauthorizedUserSendsTheRequest_receiveApiError() {
+        ResponseEntity<ApiError> response = putUser(123, null, ApiError.class);
+
+        assertThat(response.getBody().getUrl()).contains("users/123");
+    }
+
+    @Test
+    void putUser_whenAuthorizedUserSendsUpdateForAnotherUser_receiveApiError() {
+        User user = userService.save(TestUtil.createValidUser("user1"));
+        authenticate(user.getUsername());
+
+        long anotherUserId = user.getId() + 123;
+        ResponseEntity<ApiError> response = putUser(anotherUserId, null, ApiError.class);
+
+        assertThat(response.getBody().getUrl()).contains("users/" + anotherUserId);
+    }
 }
