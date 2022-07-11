@@ -1,16 +1,23 @@
 package com.jmunoz.hoaxify.user;
 
-import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.userdetails.UserDetails;
+// IMPORTANTE ESTE IMPORT
+import java.beans.Transient;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import java.util.Collection;
 
 @Data
 @Entity(name = "Users")
-public class User {
+public class User implements UserDetails {
+
+    private static final long serialVersionUID = 4074374728582967483L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -50,4 +57,34 @@ public class User {
     private String password;
 
     private String image;
+
+    @Override
+    @Transient
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return AuthorityUtils.createAuthorityList("Role_USER");
+    }
+
+    @Override
+    @Transient
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    @Transient
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    @Transient
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    @Transient
+    public boolean isEnabled() {
+        return true;
+    }
 }

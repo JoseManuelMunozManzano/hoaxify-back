@@ -1,6 +1,5 @@
 package com.jmunoz.hoaxify.configuration;
 
-import com.jmunoz.hoaxify.user.CustomUserDetails;
 import com.jmunoz.hoaxify.user.User;
 import com.jmunoz.hoaxify.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,8 +32,6 @@ public class AuthUserService implements UserDetailsService {
             throw new UsernameNotFoundException("User not found");
         }
 
-        CustomUserDetails userDetails = new CustomUserDetails(user);
-
-        return userDetails;
+        return user;
     }
 }

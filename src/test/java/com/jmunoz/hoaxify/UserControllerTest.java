@@ -460,4 +460,20 @@ public class UserControllerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
     }
+
+    @Test
+    void putUser_whenAuthorizedUserSendsUpdateForAnotherUser_receiveForbidden() {
+        User user = userService.save(TestUtil.createValidUser("user1"));
+        authenticate(user.getUsername());
+
+        long anotherUserId = user.getId() + 123;
+        ResponseEntity<Object> response = putUser(anotherUserId, null, Object.class);
+
+        // Para pasar este test, hay 2 posibilidades:
+        // 1. Podemos revisar en la BD si User es el mismo que el usuario que ha hecho login. En caso contrario
+        //    se lanza una excepción.
+        // 2. Enfoque más simple. Spring Security provee de una característica llamada Autorización a nivel de método.
+        //    Hay que activar esta característica (ver SecurityConfiguration)
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+    }
 }

@@ -16,6 +16,7 @@ public class UserService {
     PasswordEncoder passwordEncoder;
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        super();
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
@@ -23,10 +24,6 @@ public class UserService {
     public User save(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
-    }
-
-    public User findUserByUsername(String username) {
-        return userRepository.findByUsername(username);
     }
 
     public Page<User> getUsers(User loggedInUser, Pageable pageable) {
