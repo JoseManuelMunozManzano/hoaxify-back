@@ -475,6 +475,11 @@ public class UserControllerTest {
         //    se lanza una excepción.
         // 2. Enfoque más simple. Spring Security provee de una característica llamada Autorización a nivel de método.
         //    Hay que activar esta característica (ver SecurityConfiguration)
+        //
+        // Ahora este test falla porque en vez de recibir 403 estamos recibiendo 400.
+        // Esto ocurre porque estamos buscando requests (@RequestBody) en UserController, método updateUser
+        // y por defecto es requerido.
+        // Para resolver este problema en ese método indicando que el request no es requerido.
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 
@@ -518,6 +523,20 @@ public class UserControllerTest {
         ResponseEntity<Object> response = putUser(user.getId(), requestEntity, Object.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    void putUser_whenValidRequestBodyFromAuthorizedUser_displayNameUpdated() {
+        User user = userService.save(TestUtil.createValidUser("user1"));
+        authenticate(user.getUsername());
+
+        UserUpdateVM updateUser = createValidUserUpdateVM();
+
+        HttpEntity<UserUpdateVM> requestEntity = new HttpEntity<>(updateUser);
+        putUser(user.getId(), requestEntity, Object.class);
+
+        User userInDB = userRepository.findByUsername("user1");
+        assertThat(userInDB.getDisplayName()).isEqualTo(updateUser.getDisplayName());
     }
 
     private UserUpdateVM createValidUserUpdateVM() {

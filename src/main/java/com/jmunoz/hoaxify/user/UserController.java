@@ -3,6 +3,7 @@ package com.jmunoz.hoaxify.user;
 import com.jmunoz.hoaxify.error.ApiError;
 import com.jmunoz.hoaxify.shared.CurrentUser;
 import com.jmunoz.hoaxify.shared.GenericResponse;
+import com.jmunoz.hoaxify.user.vm.UserUpdateVM;
 import com.jmunoz.hoaxify.user.vm.UserVM;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -45,10 +46,11 @@ public class UserController {
         return new UserVM(user);
     }
 
+    // Indicamos que no es requerido el request para evitar problemas en otros tests
     @PutMapping("/users/{id:[0-9]+}")
     @PreAuthorize("#id == principal.id")
-    void updateUser(@PathVariable long id) {
-
+    void updateUser(@PathVariable long id, @RequestBody(required = false) UserUpdateVM userUpdate) {
+        userService.update(id, userUpdate);
     }
 
     @ExceptionHandler({MethodArgumentNotValidException.class})
