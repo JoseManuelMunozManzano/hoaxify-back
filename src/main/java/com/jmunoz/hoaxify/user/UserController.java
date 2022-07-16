@@ -45,13 +45,6 @@ public class UserController {
         return new UserVM(user);
     }
 
-    // Se indica usando regex que el id es un numérico.
-    //
-    // @PreAuthorize usa un parámetro que es un SpEL (Spring Expression Language)
-    // Se va a comprobar la igualdad del id del path Variable (#id) con el del usuario que hizo login (el
-    // del principal.id)
-    // Por tanto, antes de llamar al método Spring Security evaluará esta expresión. Si el id es el mismo
-    // se evaluará el método. Si no, Spring Security rechazará la petición y se disparará la respuesta Forbidden.
     @PutMapping("/users/{id:[0-9]+}")
     @PreAuthorize("#id == principal.id")
     void updateUser(@PathVariable long id) {

@@ -5,6 +5,7 @@ import com.jmunoz.hoaxify.shared.GenericResponse;
 import com.jmunoz.hoaxify.user.User;
 import com.jmunoz.hoaxify.user.UserRepository;
 import com.jmunoz.hoaxify.user.UserService;
+import com.jmunoz.hoaxify.user.vm.UserUpdateVM;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -493,5 +494,35 @@ public class UserControllerTest {
         ResponseEntity<ApiError> response = putUser(anotherUserId, null, ApiError.class);
 
         assertThat(response.getBody().getUrl()).contains("users/" + anotherUserId);
+    }
+
+    @Test
+    void putUser_whenValidRequestBodyFromAuthorizedUser_receiveOk() {
+        User user = userService.save(TestUtil.createValidUser("user1"));
+        authenticate(user.getUsername());
+
+        // Restricciones para el Update
+        // No se permite cambiar el username
+        // No se permite cambiar el password
+        // Por tanto, aquí solo se puede cambiar displayName
+
+        // Aquí se podría usar un objeto User y en la implementación validar solo displayName.
+        // Pero también queremos validar la request de actualización y si se utiliza un objeto User
+        // tenemos que enviar también datos válidos de username y password, cosa que no tiene
+        // sentido aquí.
+        // Se crea un tipo de objeto nuevo. Ver UserUpdateVM
+        // El VM es porque lo necesitamos solo para vista-modelo
+        UserUpdateVM updateUser = createValidUserUpdateVM();
+
+        HttpEntity<UserUpdateVM> requestEntity = new HttpEntity<>(updateUser);
+        ResponseEntity<Object> response = putUser(user.getId(), requestEntity, Object.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    private UserUpdateVM createValidUserUpdateVM() {
+        UserUpdateVM updateUser = new UserUpdateVM();
+        updateUser.setDisplayName("newDisplayName");
+        return updateUser;
     }
 }
