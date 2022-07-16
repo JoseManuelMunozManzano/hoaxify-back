@@ -43,13 +43,13 @@ public class UserService {
         return inDB;
     }
 
-    public void update(long id, UserUpdateVM userUpdate) {
+    public User update(long id, UserUpdateVM userUpdate) {
         // No se usa definedById porque devuelve un Optional User.
         // No hace falta ese control porque sabemos que el request viene de un usuario autorizado que
         // existe en BD y cuyo ID es el usuario actualmente registrado. Por tanto, el id existe en BD.
         // En otro caso, esto fallaría en los controles de seguridad.
         User inDB = userRepository.getReferenceById(id);
         inDB.setDisplayName(userUpdate.getDisplayName());
-        userRepository.save(inDB);
+        return userRepository.save(inDB);
     }
 }

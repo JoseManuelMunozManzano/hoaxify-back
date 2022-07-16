@@ -6,6 +6,7 @@ import com.jmunoz.hoaxify.user.User;
 import com.jmunoz.hoaxify.user.UserRepository;
 import com.jmunoz.hoaxify.user.UserService;
 import com.jmunoz.hoaxify.user.vm.UserUpdateVM;
+import com.jmunoz.hoaxify.user.vm.UserVM;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -537,6 +538,21 @@ public class UserControllerTest {
 
         User userInDB = userRepository.findByUsername("user1");
         assertThat(userInDB.getDisplayName()).isEqualTo(updateUser.getDisplayName());
+    }
+
+    @Test
+    void putUser_whenValidRequestBodyFromAuthorizedUser_receiveUserVMWithDisplayName() {
+        User user = userService.save(TestUtil.createValidUser("user1"));
+        authenticate(user.getUsername());
+
+        UserUpdateVM updateUser = createValidUserUpdateVM();
+
+        HttpEntity<UserUpdateVM> requestEntity = new HttpEntity<>(updateUser);
+        ResponseEntity<UserVM> response = putUser(user.getId(), requestEntity, UserVM.class);
+
+        // Esto falla porque se recibe NullPointerException porque en el response no hay displayName.
+        // Se corrige.
+        assertThat(response.getBody().getDisplayName()).isEqualTo(updateUser.getDisplayName());
     }
 
     private UserUpdateVM createValidUserUpdateVM() {
