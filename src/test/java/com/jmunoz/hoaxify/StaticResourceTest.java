@@ -1,29 +1,51 @@
 package com.jmunoz.hoaxify;
 
 import com.jmunoz.hoaxify.configuration.AppConfiguration;
+import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.File;
+import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 // Por ahora no hemos guardado el fichero subido a una carpeta.
 // Vamos a ver como funcionará el backend cuando se trata de ficheros estáticos como imágenes.
 // Primero, los ficheros subidos deben almacenarse en algún directorio, así que tenemos
 // que decirle a Spring que carpeta se va a usar para almacenamiento de imágenes.
 // También le diremos a Spring que cree la carpeta si no existe.
-
+//
+// @AutoConfigureMockMvc sirve para que Spring configure MockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
+@AutoConfigureMockMvc
 public class StaticResourceTest {
 
     // Ahora en vez de tener tantos @Value por el código, se inyecta la clase AppConfiguration
     // y se usa en código para obtener los valores
     @Autowired
     AppConfiguration appConfiguration;
+
+    // Vamos a configurar nuestra app para servir los recursos que tenemos en las carpetas
+    // Vamos a hacer peticiones HTTP a nuestro backend, pero en vez de usar TestRestTemplate
+    // vamos a usar MockMvc porque no estamos haciendo test a REST.
+    @Autowired
+    MockMvc mockMvc;
+
+    // Limpiamos la carpeta de imágenes tras cada test
+    @AfterEach
+    void tearDown() throws IOException {
+        FileUtils.cleanDirectory(new File(appConfiguration.getFullProfileImagesPath()));
+    }
 
     @Test
     void checkStaticFolder_whenAppIsInitialized_uploadFolderMustExist() {
@@ -38,7 +60,7 @@ public class StaticResourceTest {
     // a separar en subcarpetas
     @Test
     void checkStaticFolder_WhenAppIsInitialized_profileImageSubFolderMustExist() {
-        String profileImageFolderPath = appConfiguration.getFullProfileImagePath();
+        String profileImageFolderPath = appConfiguration.getFullProfileImagesPath();
         File profileImageFolder = new File(profileImageFolderPath);
         boolean profileImageFolderExist = profileImageFolder.exists() && profileImageFolder.isDirectory();
 
@@ -106,4 +128,18 @@ public class StaticResourceTest {
     //
     // NOTA IMPORTANTE: Spring Boot 2.1.12 y 2.2.3 rompe los tests por bugs introducidos en estas releases.
     // Se soluciona usando otras versiones de Spring Boot.
+
+
+    @Test
+    void getStaticFile_whenImageExistInProfileUploadFolder_receiveOk() throws Exception {
+        String fileName = "profile-picture.png";
+        File source = new ClassPathResource("profile.png").getFile();
+
+        File target = new File(appConfiguration.getFullProfileImagesPath() + "/" + fileName);
+        FileUtils.copyFile(source, target);
+
+        // http request para obtener el fichero
+        mockMvc.perform(get("/images/" + appConfiguration.getProfileImagesFoder() + "/" + fileName))
+                .andExpect(status().isOk());
+    }
 }
