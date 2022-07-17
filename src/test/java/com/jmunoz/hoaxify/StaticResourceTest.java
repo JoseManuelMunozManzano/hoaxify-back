@@ -33,4 +33,15 @@ public class StaticResourceTest {
 
         assertThat(uploadFolderExist).isTrue();
     }
+
+    // Como vamos a tener las imágenes de perfil y más tarde imágenes adjuntas de los usuarios las vamos
+    // a separar en subcarpetas
+    @Test
+    void checkStaticFolder_WhenAppIsInitialized_profileImageSubFolderMustExist() {
+        String profileImageFolderPath = appConfiguration.getFullProfileImagePath();
+        File profileImageFolder = new File(profileImageFolderPath);
+        boolean profileImageFolderExist = profileImageFolder.exists() && profileImageFolder.isDirectory();
+
+        assertThat(profileImageFolderExist).isTrue();
+    }
 }

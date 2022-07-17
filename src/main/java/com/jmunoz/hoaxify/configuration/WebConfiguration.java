@@ -21,11 +21,16 @@ public class WebConfiguration implements WebMvcConfigurer {
     @Bean
     CommandLineRunner createUploadFolder() {
         return (args) -> {
-            File uploadFolder = new File(appConfiguration.uploadPath);
-            boolean uploadFolderExist = uploadFolder.exists() && uploadFolder.isDirectory();
-            if (!uploadFolderExist) {
-                uploadFolder.mkdir();
-            }
+            createNonExistingFolder(appConfiguration.uploadPath);
+            createNonExistingFolder(appConfiguration.getFullProfileImagePath());
         };
+    }
+
+    private void createNonExistingFolder(String path) {
+        File folder = new File(path);
+        boolean folderExist = folder.exists() && folder.isDirectory();
+        if (!folderExist) {
+            folder.mkdir();
+        }
     }
 }

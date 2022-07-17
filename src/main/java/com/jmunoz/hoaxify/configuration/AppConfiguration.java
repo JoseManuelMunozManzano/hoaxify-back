@@ -18,5 +18,13 @@ import org.springframework.context.annotation.Configuration;
 @Data
 public class AppConfiguration {
 
+    // Este valor aparece en application.yml como upload=path
     String uploadPath;
+
+    // En este caso se establece aquí el valor. Sirve como valor por defecto
+    String profileImagesFoder = "profile";
+
+    public String getFullProfileImagePath() {
+        return this.uploadPath + "/" + this.profileImagesFoder;
+    }
 }
