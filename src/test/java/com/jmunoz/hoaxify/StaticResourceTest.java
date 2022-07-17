@@ -1,7 +1,8 @@
 package com.jmunoz.hoaxify;
 
+import com.jmunoz.hoaxify.configuration.AppConfiguration;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -19,16 +20,15 @@ import static org.assertj.core.api.Assertions.*;
 @ActiveProfiles("test")
 public class StaticResourceTest {
 
-    // Definida propiedad personalizada en application.yml
-    // Si se informan muchas propiedades se puede volver un lío, así que lo mejor es crear una clase de
-    // Configuración que mantenga nuestras propiedades.
-    @Value("${uploadpath}")
-    String uploadPath;
+    // Ahora en vez de tener tantos @Value por el código, se inyecta la clase AppConfiguration
+    // y se usa en código para obtener los valores
+    @Autowired
+    AppConfiguration appConfiguration;
 
     @Test
     void checkStaticFolder_whenAppIsInitialized_uploadFolderMustExist() {
         // El objeto File se usa en Java tanto para ficheros como para carpetas
-        File uploadFolder = new File(uploadPath);
+        File uploadFolder = new File(appConfiguration.getUploadPath());
         boolean uploadFolderExist = uploadFolder.exists() && uploadFolder.isDirectory();
 
         assertThat(uploadFolderExist).isTrue();
