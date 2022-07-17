@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.io.File;
@@ -18,7 +19,12 @@ public class WebConfiguration implements WebMvcConfigurer {
     @Autowired
     AppConfiguration appConfiguration;
 
+    // Se ejecuta este Bean para profiles que son dev
+    // Se puede indicar no ejecutar para un profile en concreto de esta forma:
+    // @Profile("!test")
+    // Se ejecutaría el Bean para profiles que NO son test
     @Bean
+    @Profile("dev")
     CommandLineRunner createUploadFolder() {
         return (args) -> {
             createNonExistingFolder(appConfiguration.uploadPath);
