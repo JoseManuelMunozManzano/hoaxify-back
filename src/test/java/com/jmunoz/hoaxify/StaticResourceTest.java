@@ -156,4 +156,16 @@ public class StaticResourceTest {
         mockMvc.perform(get("/images/" + appConfiguration.getAttachmentsFolder() + "/" + fileName))
                 .andExpect(status().isOk());
     }
+
+    // No hace falta hacer nada para que este test funcione porque Spring no puede encontrar el fichero en la
+    // carpeta y devuelve por defecto el response 404.
+    //
+    // En este caso el test se usa para confirmar un comportamiento. Spring sigue evolucionando y puede
+    // venir una actualización que rompa este test, así que es siempre una buena práctica añadir tests que
+    // validan comportamientos esperados aunque no necesiten implementación.
+    @Test
+    void getStaticFile_whenImageDoesNotExist_receiveNotFound() throws Exception {
+        mockMvc.perform(get("/images/" + appConfiguration.getAttachmentsFolder() + "/there-is-no-such-image.png"))
+                .andExpect(status().isNotFound());
+    }
 }
