@@ -1,5 +1,6 @@
 package com.jmunoz.hoaxify.configuration;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,10 +15,13 @@ import java.io.File;
 @Configuration
 public class WebConfiguration implements WebMvcConfigurer {
 
+    @Value("${uploadpath}")
+    String uploadPath;
+
     @Bean
     CommandLineRunner createUploadFolder() {
         return (args) -> {
-            File uploadFolder = new File("uploads-test");
+            File uploadFolder = new File(uploadPath);
             boolean uploadFolderExist = uploadFolder.exists() && uploadFolder.isDirectory();
             if (!uploadFolderExist) {
                 uploadFolder.mkdir();

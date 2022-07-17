@@ -17,6 +17,8 @@ spring:
         default-page-size: 10
         max-page-size: 100
 
+uploadpath: uploads-test
+
 server:
   error:
     include-message: always
