@@ -5,10 +5,12 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.CacheControl;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.io.File;
+import java.util.concurrent.TimeUnit;
 
 // Esta clase será chequeada por Spring para to-do lo relacionado con configuraciones web, como configurar
 // paths de fuentes estáticas o configurar interceptores de peticiones Http.
@@ -29,7 +31,8 @@ public class WebConfiguration implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/images/**")
-                .addResourceLocations("file:" + appConfiguration.getUploadPath() + "/");
+                .addResourceLocations("file:" + appConfiguration.getUploadPath() + "/")
+                .setCacheControl(CacheControl.maxAge(365, TimeUnit.DAYS));
     }
 
     // Se ejecuta este Bean para profiles que son dev

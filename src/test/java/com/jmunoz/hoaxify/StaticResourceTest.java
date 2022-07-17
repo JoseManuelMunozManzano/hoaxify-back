@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import java.io.File;
 import java.io.IOException;
@@ -167,5 +168,36 @@ public class StaticResourceTest {
     void getStaticFile_whenImageDoesNotExist_receiveNotFound() throws Exception {
         mockMvc.perform(get("/images/" + appConfiguration.getAttachmentsFolder() + "/there-is-no-such-image.png"))
                 .andExpect(status().isNotFound());
+    }
+
+    // Nuestra app sirve ficheros estáticos.
+    // Se va a añadir una importante característica para mejor rendimiento de nuestro servidor.
+    // Los ficheros estáticos no estarán cambiando de forma frecuente, así que diremos al browser que los
+    // almacene en caché (caching) la primera vez que haga el request.
+    // Así nuestros recursos del servidor no estarán ocupados con recursos estáticos en los potenciales siguientes
+    // request del mismo browser.
+    //
+    // Para probar en el navegador, llevar una imagen con nombre profile.png a la ruta: uploads-dev/profile/
+    // Arrancar la app e ir a la siguiente ruta, arrancando primero las herramientas de desarrollador, yendo a la
+    // pestaña Network y desmarcar Disable cache:
+    // http://localhost:8080/images/profile/profile.png
+    // La primera vez el status será 200, pero si ahora recargamos la página, el status será 304 (Not modified response)
+    @Test
+    void getStaticFile_whenImageExistInAttachmentFolder_receiveOkWithCacheHeaders() throws Exception {
+        String fileName = "profile-picture.png";
+        File source = new ClassPathResource("profile.png").getFile();
+
+        File target = new File(appConfiguration.getFullAttachmentsPath() + "/" + fileName);
+        FileUtils.copyFile(source, target);
+
+        // Vamos a comprobar las cabeceras http en la respuesta
+        MvcResult result = mockMvc.perform(get("/images/" + appConfiguration.getAttachmentsFolder() + "/" + fileName))
+                .andReturn();
+
+        String cacheControl = result.getResponse().getHeaderValue("Cache-control").toString();
+
+        // Ese número es un año en segundos
+        // El servidor esta diciendo al cliente que tenga en caché ese fichero por 1 año
+        assertThat(cacheControl).containsIgnoringCase("max-age=31536000");
     }
 }
