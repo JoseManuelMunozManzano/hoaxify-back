@@ -1,5 +1,6 @@
 package com.jmunoz.hoaxify;
 
+import com.jmunoz.hoaxify.configuration.AppConfiguration;
 import com.jmunoz.hoaxify.error.ApiError;
 import com.jmunoz.hoaxify.shared.GenericResponse;
 import com.jmunoz.hoaxify.user.User;
@@ -21,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
@@ -50,10 +52,19 @@ public class UserControllerTest {
     @Autowired
     UserService userService;
 
+    @Autowired
+    AppConfiguration appConfiguration;
+
     @BeforeEach
     void cleanup() {
         userRepository.deleteAll();
         testRestTemplate.getRestTemplate().getInterceptors().clear();
+    }
+
+    @AfterEach
+    void tearDown() throws IOException {
+        FileUtils.cleanDirectory(new File(appConfiguration.getFullProfileImagesPath()));
+        FileUtils.cleanDirectory(new File(appConfiguration.getFullAttachmentsPath()));
     }
 
     public <T> ResponseEntity<T> postSignup(Object request, Class<T> response) {
@@ -563,28 +574,42 @@ public class UserControllerTest {
     void putUser_withValidRequestBodyWithSupportedImageFromAuthorizedUser_receiveUserVMWithRandomImageName() throws IOException {
         User user = userService.save(TestUtil.createValidUser("user1"));
         authenticate(user.getUsername());
-
-        // Nuestra imagen
-        ClassPathResource imageResource = new ClassPathResource("profile.png");
-
         UserUpdateVM updateUser = createValidUserUpdateVM();
-
-        // Para subir imágenes tenemos 2 opciones
-        // 1. Convertir el fichero de la imagen a base 64 y enviarla como parte de UserUpdateVM
-        // 2. En vez de JSONRequest Body para este endpoint, podemos enviar un multipart body request.
-        //    Si cambiamos displayName y subimos una imagen de perfil, una parte de nuestro request body
-        //    contendrá UserUpdateVM como Json y otra parte contendrá el fichero multiparte.
-        //
-        // Se va a implementar la opción 1, convertir la imagen en una cadena base 64 y añadirla a nuestro objeto
-        // UserUpdateVM. Se añade la dependencia Apache Commons IO
-        byte[] imageArr = FileUtils.readFileToByteArray(imageResource.getFile());
-        String imageString = Base64.getEncoder().encodeToString(imageArr);
+        String imageString = readFileToBase64("profile.png");
         updateUser.setImage(imageString);
 
         HttpEntity<UserUpdateVM> requestEntity = new HttpEntity<>(updateUser);
         ResponseEntity<UserVM> response = putUser(user.getId(), requestEntity, UserVM.class);
 
         assertThat(response.getBody().getImage()).isNotEqualTo("profile-image.png");
+    }
+
+    // Verificamos que estamos guardando el fichero
+    @Test
+    void putUser_withValidRequestBodyWithSupportedImageFromAuthorizedUser_ImageIsStoredUnderProfileFolder() throws IOException {
+        User user = userService.save(TestUtil.createValidUser("user1"));
+        authenticate(user.getUsername());
+        UserUpdateVM updateUser = createValidUserUpdateVM();
+        String imageString = readFileToBase64("profile.png");
+        updateUser.setImage(imageString);
+
+        HttpEntity<UserUpdateVM> requestEntity = new HttpEntity<>(updateUser);
+        ResponseEntity<UserVM> response = putUser(user.getId(), requestEntity, UserVM.class);
+
+        String storedImageName = response.getBody().getImage();
+
+        String profilePicturePath = appConfiguration.getFullProfileImagesPath() + "/" + storedImageName;
+
+        File storedImage = new File(profilePicturePath);
+
+        assertThat(storedImage.exists()).isTrue();
+    }
+
+    private String readFileToBase64(String fileName) throws IOException {
+        ClassPathResource imageResource = new ClassPathResource(fileName);
+        byte[] imageArr = FileUtils.readFileToByteArray(imageResource.getFile());
+        String imageString = Base64.getEncoder().encodeToString(imageArr);
+        return imageString;
     }
 
     private UserUpdateVM createValidUserUpdateVM() {

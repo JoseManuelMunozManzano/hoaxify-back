@@ -1,12 +1,14 @@
 package com.jmunoz.hoaxify.user;
 
 import com.jmunoz.hoaxify.error.NotFoundException;
+import com.jmunoz.hoaxify.file.FileService;
 import com.jmunoz.hoaxify.user.vm.UserUpdateVM;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.UUID;
 
 @Service
@@ -18,10 +20,13 @@ public class UserService {
     // nuestro passwordEncoder
     PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    FileService fileService;
+
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, FileService fileService) {
         super();
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.fileService = fileService;
     }
 
     public User save(User user) {
@@ -49,11 +54,15 @@ public class UserService {
         User inDB = userRepository.getReferenceById(id);
         inDB.setDisplayName(userUpdate.getDisplayName());
 
-        // Todavía no estamos guardando la imagen. Estamos proporcionando la imagen como una cadena.
-        // Podríamos haberla guardado directamente en BD pero no se hará eso.
-        // Se almacenará la imagen como fichero en un almacenamiento.
-        String savedImageName = inDB.getUsername() + UUID.randomUUID().toString().replaceAll("-", "");
-        inDB.setImage(savedImageName);
+        if (userUpdate.getImage() != null) {
+            String savedImageName = null;
+            try {
+                savedImageName = fileService.saveProfileImage(userUpdate.getImage());
+                inDB.setImage(savedImageName);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         return userRepository.save(inDB);
     }
