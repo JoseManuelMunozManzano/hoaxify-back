@@ -45,6 +45,7 @@ public class StaticResourceTest {
     @AfterEach
     void tearDown() throws IOException {
         FileUtils.cleanDirectory(new File(appConfiguration.getFullProfileImagesPath()));
+        FileUtils.cleanDirectory(new File(appConfiguration.getFullAttachmentsPath()));
     }
 
     @Test
@@ -140,6 +141,19 @@ public class StaticResourceTest {
 
         // http request para obtener el fichero
         mockMvc.perform(get("/images/" + appConfiguration.getProfileImagesFoder() + "/" + fileName))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void getStaticFile_whenImageExistInAttachmentFolder_receiveOk() throws Exception {
+        String fileName = "profile-picture.png";
+        File source = new ClassPathResource("profile.png").getFile();
+
+        File target = new File(appConfiguration.getFullAttachmentsPath() + "/" + fileName);
+        FileUtils.copyFile(source, target);
+
+        // http request para obtener el fichero
+        mockMvc.perform(get("/images/" + appConfiguration.getAttachmentsFolder() + "/" + fileName))
                 .andExpect(status().isOk());
     }
 }
