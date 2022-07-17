@@ -7,6 +7,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 public class UserService {
 
@@ -44,12 +46,15 @@ public class UserService {
     }
 
     public User update(long id, UserUpdateVM userUpdate) {
-        // No se usa definedById porque devuelve un Optional User.
-        // No hace falta ese control porque sabemos que el request viene de un usuario autorizado que
-        // existe en BD y cuyo ID es el usuario actualmente registrado. Por tanto, el id existe en BD.
-        // En otro caso, esto fallaría en los controles de seguridad.
         User inDB = userRepository.getReferenceById(id);
         inDB.setDisplayName(userUpdate.getDisplayName());
+
+        // Todavía no estamos guardando la imagen. Estamos proporcionando la imagen como una cadena.
+        // Podríamos haberla guardado directamente en BD pero no se hará eso.
+        // Se almacenará la imagen como fichero en un almacenamiento.
+        String savedImageName = inDB.getUsername() + UUID.randomUUID().toString().replaceAll("-", "");
+        inDB.setImage(savedImageName);
+
         return userRepository.save(inDB);
     }
 }

@@ -7,11 +7,13 @@ import com.jmunoz.hoaxify.user.UserRepository;
 import com.jmunoz.hoaxify.user.UserService;
 import com.jmunoz.hoaxify.user.vm.UserUpdateVM;
 import com.jmunoz.hoaxify.user.vm.UserVM;
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -19,6 +21,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.io.IOException;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -553,6 +557,34 @@ public class UserControllerTest {
         // Esto falla porque se recibe NullPointerException porque en el response no hay displayName.
         // Se corrige.
         assertThat(response.getBody().getDisplayName()).isEqualTo(updateUser.getDisplayName());
+    }
+
+    @Test
+    void putUser_withValidRequestBodyWithSupportedImageFromAuthorizedUser_receiveUserVMWithRandomImageName() throws IOException {
+        User user = userService.save(TestUtil.createValidUser("user1"));
+        authenticate(user.getUsername());
+
+        // Nuestra imagen
+        ClassPathResource imageResource = new ClassPathResource("profile.png");
+
+        UserUpdateVM updateUser = createValidUserUpdateVM();
+
+        // Para subir imágenes tenemos 2 opciones
+        // 1. Convertir el fichero de la imagen a base 64 y enviarla como parte de UserUpdateVM
+        // 2. En vez de JSONRequest Body para este endpoint, podemos enviar un multipart body request.
+        //    Si cambiamos displayName y subimos una imagen de perfil, una parte de nuestro request body
+        //    contendrá UserUpdateVM como Json y otra parte contendrá el fichero multiparte.
+        //
+        // Se va a implementar la opción 1, convertir la imagen en una cadena base 64 y añadirla a nuestro objeto
+        // UserUpdateVM. Se añade la dependencia Apache Commons IO
+        byte[] imageArr = FileUtils.readFileToByteArray(imageResource.getFile());
+        String imageString = Base64.getEncoder().encodeToString(imageArr);
+        updateUser.setImage(imageString);
+
+        HttpEntity<UserUpdateVM> requestEntity = new HttpEntity<>(updateUser);
+        ResponseEntity<UserVM> response = putUser(user.getId(), requestEntity, UserVM.class);
+
+        assertThat(response.getBody().getImage()).isNotEqualTo("profile-image.png");
     }
 
     private UserUpdateVM createValidUserUpdateVM() {
