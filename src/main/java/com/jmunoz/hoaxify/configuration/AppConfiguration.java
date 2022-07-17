@@ -24,7 +24,13 @@ public class AppConfiguration {
     // En este caso se establece aquí el valor. Sirve como valor por defecto
     String profileImagesFoder = "profile";
 
+    String attachmentsFolder = "attachments";
+
     public String getFullProfileImagePath() {
         return this.uploadPath + "/" + this.profileImagesFoder;
+    }
+
+    public String getFullAttachmentsPath() {
+        return this.uploadPath + "/" + this.attachmentsFolder;
     }
 }

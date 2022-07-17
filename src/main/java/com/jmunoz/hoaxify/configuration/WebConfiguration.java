@@ -23,6 +23,7 @@ public class WebConfiguration implements WebMvcConfigurer {
         return (args) -> {
             createNonExistingFolder(appConfiguration.uploadPath);
             createNonExistingFolder(appConfiguration.getFullProfileImagePath());
+            createNonExistingFolder(appConfiguration.getFullAttachmentsPath());
         };
     }
 

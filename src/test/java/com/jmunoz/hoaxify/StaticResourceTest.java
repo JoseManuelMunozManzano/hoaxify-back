@@ -44,4 +44,13 @@ public class StaticResourceTest {
 
         assertThat(profileImageFolderExist).isTrue();
     }
+
+    @Test
+    void checkStaticFolder_WhenAppIsInitialized_attachmentsSubFolderMustExist() {
+        String attachmentsFolderPath = appConfiguration.getFullAttachmentsPath();
+        File attachmentFolder = new File(attachmentsFolderPath);
+        boolean attachmentFolderExist = attachmentFolder.exists() && attachmentFolder.isDirectory();
+
+        assertThat(attachmentFolderExist).isTrue();
+    }
 }
