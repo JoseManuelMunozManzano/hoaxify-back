@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ProfileImage {
 
-    String message() default "";
+    String message() default "{hoaxify.constraints.image.ProfileImage.message}";
 
     Class<?>[] groups() default {};
 
