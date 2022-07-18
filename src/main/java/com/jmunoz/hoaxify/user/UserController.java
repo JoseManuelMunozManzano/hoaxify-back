@@ -46,11 +46,9 @@ public class UserController {
         return new UserVM(user);
     }
 
-    // Indicamos que no es requerido el request para evitar problemas en otros tests
-    // Indicamos como tipo del response UserVM
     @PutMapping("/users/{id:[0-9]+}")
     @PreAuthorize("#id == principal.id")
-    UserVM updateUser(@PathVariable long id, @RequestBody(required = false) UserUpdateVM userUpdate) {
+    UserVM updateUser(@PathVariable long id, @Valid @RequestBody(required = false) UserUpdateVM userUpdate) {
         User updated = userService.update(id, userUpdate);
         return new UserVM((updated));
     }
