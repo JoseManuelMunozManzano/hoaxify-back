@@ -15,9 +15,12 @@ public class FileService {
 
     AppConfiguration appConfiguration;
 
+    Tika tika;
+
     public FileService(AppConfiguration appConfiguration) {
         super();
         this.appConfiguration = appConfiguration;
+        tika = new Tika();
     }
 
     public String saveProfileImage(String base64Image) throws IOException {
@@ -32,7 +35,6 @@ public class FileService {
     // Abnalizamos el array de bytes para buscar el tipo.
     // Para eso se va a usar la biblioteca Apache Tika Core, que es capaz de detectar tipos de ficheros.
     public String detectType(byte[] fileArr) {
-        Tika tika = new Tika();
         return tika.detect(fileArr);
     }
 }
