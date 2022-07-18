@@ -2,6 +2,7 @@ package com.jmunoz.hoaxify.file;
 
 import com.jmunoz.hoaxify.configuration.AppConfiguration;
 import org.apache.commons.io.FileUtils;
+import org.apache.tika.Tika;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -26,5 +27,12 @@ public class FileService {
         File target = new File(appConfiguration.getFullProfileImagesPath() + "/" + imageName);
         FileUtils.writeByteArrayToFile(target, decodedBytes);
         return imageName;
+    }
+
+    // Abnalizamos el array de bytes para buscar el tipo.
+    // Para eso se va a usar la biblioteca Apache Tika Core, que es capaz de detectar tipos de ficheros.
+    public String detectType(byte[] fileArr) {
+        Tika tika = new Tika();
+        return tika.detect(fileArr);
     }
 }
