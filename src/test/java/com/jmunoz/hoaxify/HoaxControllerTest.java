@@ -141,4 +141,17 @@ public class HoaxControllerTest {
         // Para corregirlo se indicará la longitud de la columna content en la clase Hoax.java
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
+
+    @Test
+    void postHoax_whenHoaxContentMoreThan5000CharactersAndUserIsAuthorized_receiveBadRequest() {
+        userService.save(TestUtil.createValidUser("user1"));
+        authenticate("user1");
+
+        Hoax hoax = new Hoax();
+        String veryLongString = IntStream.rangeClosed(1, 5001).mapToObj(i -> "x").collect(Collectors.joining());
+        hoax.setContent(veryLongString);
+        ResponseEntity<Object> response = postHoax(hoax, Object.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
 }

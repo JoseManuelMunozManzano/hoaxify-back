@@ -18,7 +18,7 @@ public class Hoax {
     // Para indicar la longitud máxima del campo se usa la anotación de JPA @Column y se indica la propiedad
     // length
     @NotNull
-    @Size(min = 10)
+    @Size(min = 10, max = 5000)
     @Column(length = 5000)
     private String content;
 
