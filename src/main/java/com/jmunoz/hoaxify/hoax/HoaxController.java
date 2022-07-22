@@ -1,5 +1,7 @@
 package com.jmunoz.hoaxify.hoax;
 
+import com.jmunoz.hoaxify.shared.CurrentUser;
+import com.jmunoz.hoaxify.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,7 +15,7 @@ public class HoaxController {
     HoaxService hoaxService;
 
     @PostMapping("/hoaxes")
-    void createHoax(@Valid @RequestBody Hoax hoax) {
-        hoaxService.save(hoax);
+    void createHoax(@Valid @RequestBody Hoax hoax, @CurrentUser User user) {
+        hoaxService.save(user, hoax);
     }
 }

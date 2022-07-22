@@ -178,4 +178,16 @@ public class HoaxControllerTest {
         // todos los ExceptionHandler y estos se aplicarán a todos los @RestController
         assertThat(validationErrors.get("content")).isNotNull();
     }
+
+    @Test
+    void postHoax_whenHoaxIsValidAndUserIsAuthorized_hoaxSavedWithAuthenticatedUserInfo() {
+        userService.save(TestUtil.createValidUser("user1"));
+        authenticate("user1");
+        Hoax hoax = TestUtil.createValidHoax();
+        postHoax(hoax, Object.class);
+
+        Hoax inDB = hoaxRepository.findAll().get(0);
+
+        assertThat(inDB.getUser().getUsername()).isEqualTo("user1");
+    }
 }

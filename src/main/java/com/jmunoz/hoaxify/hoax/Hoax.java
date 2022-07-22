@@ -1,5 +1,6 @@
 package com.jmunoz.hoaxify.hoax;
 
+import com.jmunoz.hoaxify.user.User;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -24,4 +25,8 @@ public class Hoax {
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date timestamp;
+
+    // En la BD H2 no se puede usar el nombre de tabla User
+    @Column(name = "Users")
+    private User user;
 }
