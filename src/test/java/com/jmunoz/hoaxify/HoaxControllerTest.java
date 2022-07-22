@@ -172,6 +172,10 @@ public class HoaxControllerTest {
         // este comportamiento, habría que modificar ambas clases.
         // Además, si añadimos un controlador nuevo para otro endpoint, vamos a necesitar introducir
         // el mismo comportamiento.
+        //
+        // Por tanto, lo que se va a hacer es poner la lógica en un lugar común.
+        // En el package shared vamos a crear la clase ExceptionHandlerAdvice donde recogeremos
+        // todos los ExceptionHandler y estos se aplicarán a todos los @RestController
         assertThat(validationErrors.get("content")).isNotNull();
     }
 }
