@@ -15,6 +15,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -122,5 +125,20 @@ public class HoaxControllerTest {
         hoax.setContent("123456789");
         ResponseEntity<Object> response = postHoax(hoax, Object.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void postHoax_whenHoaxContentIs5000CharactersAndUserIsAuthorized_receiveOk() {
+        userService.save(TestUtil.createValidUser("user1"));
+        authenticate("user1");
+
+        Hoax hoax = new Hoax();
+        String veryLongString = IntStream.rangeClosed(1, 5000).mapToObj(i -> "x").collect(Collectors.joining());
+        hoax.setContent(veryLongString);
+        ResponseEntity<Object> response = postHoax(hoax, Object.class);
+
+        // Si no se indica nada, la longitud máxima de un String en la BD es de 255 caracteres.
+        // Para corregirlo se indicará la longitud de la columna content en la clase Hoax.java
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 }

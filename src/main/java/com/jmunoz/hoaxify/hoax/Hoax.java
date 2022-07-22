@@ -15,8 +15,11 @@ public class Hoax {
     @GeneratedValue
     private long id;
 
+    // Para indicar la longitud máxima del campo se usa la anotación de JPA @Column y se indica la propiedad
+    // length
     @NotNull
     @Size(min = 10)
+    @Column(length = 5000)
     private String content;
 
     @Temporal(TemporalType.TIMESTAMP)
