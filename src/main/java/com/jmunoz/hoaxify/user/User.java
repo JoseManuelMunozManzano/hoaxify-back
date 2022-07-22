@@ -61,7 +61,8 @@ public class User implements UserDetails {
     private String image;
 
     // Un User puede tener mucho Hoaxes
-    @OneToMany(mappedBy = "user")
+    // Estableciendo la carga de datos como EAGER (no LAZY) nuestro test funciona
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private List<Hoax> hoaxes;
 
     @Override

@@ -37,11 +37,7 @@ public class SecurityConfiguration {
         // Y ejecutamos el SELECT de la tabla HOAX
         // Y en Postman ejecutamos Create Hoax
         // Volvemos a la consola H2 y volvemos a ejecutar el SELECT de la tabla HOAX.
-        // Veremos que la celda Users está informada, pero no lo queremos así.
-        // Este usuario ya tiene correspondencia de entrada con la tabla USERS y lo que necesitamos tener
-        // en la tabla HOAX como celda Users es la primary key como foreign key.
-        //
-        // Esto se hará usando anotaciones de relaciones de entidades.
+        // Tras los arreglos ahora vemos en USER_ID de la tabla HOAX el valor 1 (el id del user). Correcto
         http.headers().disable();
 
         http.httpBasic().authenticationEntryPoint(new BasicAuthenticationEntryPoint());

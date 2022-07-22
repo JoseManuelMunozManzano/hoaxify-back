@@ -211,6 +211,8 @@ public class HoaxControllerTest {
         // Cuando se carga el objeto User únicamente carga ese objeto. Esto se hace por rendimiento.
         // Esto falla solo en el test, para nuestra query cuando se obtienen los hoaxes.
         // La ejecución de nuestra app no daría este error, al menos por ahora.
+        //
+        // Para corregir el problema hay que configurar la anotación @OneToMany. Ver User.java
         assertThat(inDBUser.getHoaxes().size()).isEqualTo(1);
     }
 }
