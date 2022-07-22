@@ -6,6 +6,7 @@ import com.jmunoz.hoaxify.hoax.HoaxRepository;
 import com.jmunoz.hoaxify.user.User;
 import com.jmunoz.hoaxify.user.UserRepository;
 import com.jmunoz.hoaxify.user.UserService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,19 @@ public class HoaxControllerTest {
         hoaxRepository.deleteAll();
         userRepository.deleteAll();
         testRestTemplate.getRestTemplate().getInterceptors().clear();
+    }
+
+    // Para evitar errores en otras clases de tests, ya que para el último test de esta clase
+    // no se está eliminando correctamente la tabla User que posee un Hoax en BD.
+    //
+    // Como LoginControllerTest tiene un @BeforeEach que hace un deleteAll de userRepository,
+    // como se ha establecido una relación entre las tablas User y Hoax, y como en Hoax queda un registro
+    // el delete de User no va a funcionar.
+    //
+    // Aquí borramos el hoax para que en los otros test ya se puede borrar User.
+    @AfterEach
+    void tearDown() {
+        hoaxRepository.deleteAll();
     }
 
     private boolean authenticate(String username) {
