@@ -19,6 +19,8 @@ import static org.assertj.core.api.Assertions.*;
 @ActiveProfiles("test")
 public class HoaxControllerTest {
 
+    public static final String API_1_0_HOAXES = "/api/1.0/hoaxes";
+
     @Autowired
     TestRestTemplate testRestTemplate;
 
@@ -44,9 +46,12 @@ public class HoaxControllerTest {
         userService.save(TestUtil.createValidUser("user1"));
         authenticate("user1");
 
-        Hoax hoax = new Hoax();
-        hoax.setContent("test content for the test hoax");
-        ResponseEntity<Object> response = testRestTemplate.postForEntity("/api/1.0/hoaxes", hoax, Object.class);
+        Hoax hoax = TestUtil.createValidHoax();
+        ResponseEntity<Object> response = postHoax(hoax, Object.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    private <T> ResponseEntity<T> postHoax(Hoax hoax, Class<T> responseType) {
+        return testRestTemplate.postForEntity(API_1_0_HOAXES, hoax, responseType);
     }
 }
