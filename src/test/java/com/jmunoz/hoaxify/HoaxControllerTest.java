@@ -41,6 +41,10 @@ public class HoaxControllerTest {
                 .getRestTemplate().getInterceptors().add(new BasicAuthenticationInterceptor(username, "P4ssword"));
     }
 
+    private <T> ResponseEntity<T> postHoax(Hoax hoax, Class<T> responseType) {
+        return testRestTemplate.postForEntity(API_1_0_HOAXES, hoax, responseType);
+    }
+
     @Test
     void postHoax_whenHoaxIsValidAndUserIsAuthorized_receiveOk() {
         userService.save(TestUtil.createValidUser("user1"));
@@ -51,7 +55,12 @@ public class HoaxControllerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
-    private <T> ResponseEntity<T> postHoax(Hoax hoax, Class<T> responseType) {
-        return testRestTemplate.postForEntity(API_1_0_HOAXES, hoax, responseType);
+    @Test
+    void postHoax_whenHoaxIsValidAndUserIsUnauthorized_receiveUnauthorized() {
+        Hoax hoax = TestUtil.createValidHoax();
+        ResponseEntity<Object> response = postHoax(hoax, Object.class);
+
+        // Para que pase el test añadimos en SecurityConfiguration en antMatcher correspondiente
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
     }
 }
