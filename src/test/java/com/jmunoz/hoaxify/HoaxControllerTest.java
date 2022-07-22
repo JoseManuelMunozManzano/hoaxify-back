@@ -112,4 +112,15 @@ public class HoaxControllerTest {
         ResponseEntity<Object> response = postHoax(hoax, Object.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
+
+    @Test
+    void postHoax_whenHoaxContentLessThan10CharactersAndUserIsAuthorized_receiveBadRequest() {
+        userService.save(TestUtil.createValidUser("user1"));
+        authenticate("user1");
+
+        Hoax hoax = new Hoax();
+        hoax.setContent("123456789");
+        ResponseEntity<Object> response = postHoax(hoax, Object.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
 }
