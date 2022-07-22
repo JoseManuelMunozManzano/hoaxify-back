@@ -1,5 +1,6 @@
 package com.jmunoz.hoaxify;
 
+import com.jmunoz.hoaxify.error.ApiError;
 import com.jmunoz.hoaxify.hoax.Hoax;
 import com.jmunoz.hoaxify.user.UserRepository;
 import com.jmunoz.hoaxify.user.UserService;
@@ -62,5 +63,15 @@ public class HoaxControllerTest {
 
         // Para que pase el test añadimos en SecurityConfiguration en antMatcher correspondiente
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+    }
+
+    @Test
+    void postHoax_whenHoaxIsValidAndUserIsUnauthorized_receiveApiError() {
+        Hoax hoax = TestUtil.createValidHoax();
+        ResponseEntity<ApiError> response = postHoax(hoax, ApiError.class);
+
+        // No hay que hacer nada para que pase este test ya que el error se está manejando en nuestro
+        // ErrorHandler (ver package error, clase ErrorHandler.java) genérico, que mapea los fallos a ApiError
+        assertThat(response.getBody().getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
     }
 }
