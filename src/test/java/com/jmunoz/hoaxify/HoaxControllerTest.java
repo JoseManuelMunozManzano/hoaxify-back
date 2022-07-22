@@ -102,4 +102,14 @@ public class HoaxControllerTest {
 
         assertThat(inDB.getTimestamp()).isNotNull();
     }
+
+    @Test
+    void postHoax_whenHoaxContentNullAndUserIsAuthorized_receiveBadRequest() {
+        userService.save(TestUtil.createValidUser("user1"));
+        authenticate("user1");
+
+        Hoax hoax = new Hoax();
+        ResponseEntity<Object> response = postHoax(hoax, Object.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
 }

@@ -3,10 +3,9 @@ package com.jmunoz.hoaxify.hoax;
 import lombok.Data;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
-// Como vamos a crear la interface HoaxRepository, actualizamos nuestra clase de Hoax indicando que es una entidad JPA
-// para la persistencia y creamos nuestro id
 @Data
 @Entity
 public class Hoax {
@@ -15,6 +14,7 @@ public class Hoax {
     @GeneratedValue
     private long id;
 
+    @NotNull
     private String content;
 
     @Temporal(TemporalType.TIMESTAMP)
