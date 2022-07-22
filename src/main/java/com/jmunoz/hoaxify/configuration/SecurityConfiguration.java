@@ -27,6 +27,23 @@ public class SecurityConfiguration {
     public SecurityFilterChain filterChain(HttpSecurity http) throws  Exception {
         http.csrf().disable();
 
+        // Queremos ver como quedan los datos de User y Hoax en la BD H2.
+        // H2 usa frames, pero ahora que usamos SpringSecurity, por defecto la configuración de SpringSecurity
+        // bloquea las peticiones de carga de frames.
+        // Actualizamos la configuración de nuestra seguridad para poder ver los datos en la consola H2
+        // y ejecutamos la app.
+        // Vamos a la ruta:
+        // http://localhost:8080/h2-console
+        // Y ejecutamos el SELECT de la tabla HOAX
+        // Y en Postman ejecutamos Create Hoax
+        // Volvemos a la consola H2 y volvemos a ejecutar el SELECT de la tabla HOAX.
+        // Veremos que la celda Users está informada, pero no lo queremos así.
+        // Este usuario ya tiene correspondencia de entrada con la tabla USERS y lo que necesitamos tener
+        // en la tabla HOAX como celda Users es la primary key como foreign key.
+        //
+        // Esto se hará usando anotaciones de relaciones de entidades.
+        http.headers().disable();
+
         http.httpBasic().authenticationEntryPoint(new BasicAuthenticationEntryPoint());
 
         http

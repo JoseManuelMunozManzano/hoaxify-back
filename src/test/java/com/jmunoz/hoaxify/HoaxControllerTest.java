@@ -3,6 +3,7 @@ package com.jmunoz.hoaxify;
 import com.jmunoz.hoaxify.error.ApiError;
 import com.jmunoz.hoaxify.hoax.Hoax;
 import com.jmunoz.hoaxify.hoax.HoaxRepository;
+import com.jmunoz.hoaxify.user.User;
 import com.jmunoz.hoaxify.user.UserRepository;
 import com.jmunoz.hoaxify.user.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -189,5 +190,21 @@ public class HoaxControllerTest {
         Hoax inDB = hoaxRepository.findAll().get(0);
 
         assertThat(inDB.getUser().getUsername()).isEqualTo("user1");
+    }
+
+    @Test
+    void postHoax_whenHoaxIsValidAndUserIsAuthorized_hoaxCanBeAccessedFromUserEntity() {
+        userService.save(TestUtil.createValidUser("user1"));
+        authenticate("user1");
+        Hoax hoax = TestUtil.createValidHoax();
+        postHoax(hoax, Object.class);
+
+        User inDBUser = userRepository.findByUsername("user1");
+
+        // Un hoax puede tener 1 usuario, pero un usuario puede postear muchos hoaxes
+        // Cuando añadimos la lista de hoaxes en la tabla User fallan todos los tests.
+        // Cómo se puede almacenar una lista en una llamada? Hibernate no sabe como convertir
+        // esos datos en una columna con valor.
+        assertThat(inDBUser.getHoaxes().size()).isEqualTo(1);
     }
 }

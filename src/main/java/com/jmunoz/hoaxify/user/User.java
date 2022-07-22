@@ -1,5 +1,6 @@
 package com.jmunoz.hoaxify.user;
 
+import com.jmunoz.hoaxify.hoax.Hoax;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -12,6 +13,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.Collection;
+import java.util.List;
 
 @Data
 @Entity(name = "Users")
@@ -57,6 +59,9 @@ public class User implements UserDetails {
     private String password;
 
     private String image;
+
+    // Lo comentamos por ahora
+//    private List<Hoax> hoaxes;
 
     @Override
     @Transient
