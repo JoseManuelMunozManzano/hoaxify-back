@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -153,5 +154,24 @@ public class HoaxControllerTest {
         ResponseEntity<Object> response = postHoax(hoax, Object.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void postHoax_whenHoaxContentNullAndUserIsAuthorized_receiveApiErrorWithValidationErrors() {
+        userService.save(TestUtil.createValidUser("user1"));
+        authenticate("user1");
+
+        // content es null
+        Hoax hoax = new Hoax();
+        ResponseEntity<ApiError> response = postHoax(hoax, ApiError.class);
+        Map<String, String> validationErrors = response.getBody().getValidationErrors();
+
+        // Para que pase el test de una manera "sucia", vamos a copiar de la clase UserController
+        // el método handleValidationException en la clase HoaxController.
+        // El problema es que ahora tenemos código duplicado, y si en el futuro se quisiera cambiar
+        // este comportamiento, habría que modificar ambas clases.
+        // Además, si añadimos un controlador nuevo para otro endpoint, vamos a necesitar introducir
+        // el mismo comportamiento.
+        assertThat(validationErrors.get("content")).isNotNull();
     }
 }
