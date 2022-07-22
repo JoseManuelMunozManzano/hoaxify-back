@@ -60,8 +60,9 @@ public class User implements UserDetails {
 
     private String image;
 
-    // Lo comentamos por ahora
-//    private List<Hoax> hoaxes;
+    // Un User puede tener mucho Hoaxes
+    @OneToMany(mappedBy = "user")
+    private List<Hoax> hoaxes;
 
     @Override
     @Transient

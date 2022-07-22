@@ -205,6 +205,12 @@ public class HoaxControllerTest {
         // Cuando añadimos la lista de hoaxes en la tabla User fallan todos los tests.
         // Cómo se puede almacenar una lista en una llamada? Hibernate no sabe como convertir
         // esos datos en una columna con valor.
+        //
+        // Tras informar las relaciones entre entidades, sigue fallando solo este test con el error
+        // LazyInitializationException.
+        // Cuando se carga el objeto User únicamente carga ese objeto. Esto se hace por rendimiento.
+        // Esto falla solo en el test, para nuestra query cuando se obtienen los hoaxes.
+        // La ejecución de nuestra app no daría este error, al menos por ahora.
         assertThat(inDBUser.getHoaxes().size()).isEqualTo(1);
     }
 }

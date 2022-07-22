@@ -26,7 +26,8 @@ public class Hoax {
     @Temporal(TemporalType.TIMESTAMP)
     private Date timestamp;
 
-    // En la BD H2 no se puede usar el nombre de tabla User
-    @Column(name = "Users")
+    // Relación muchos Hoaxes pueden pertenecer a un User
+    // Al informar @ManyToOne ya no se puede informar la anotación @Column
+    @ManyToOne
     private User user;
 }
