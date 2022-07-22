@@ -90,4 +90,16 @@ public class HoaxControllerTest {
 
         assertThat(hoaxRepository.count()).isEqualTo(1);
     }
+
+    @Test
+    void postHoax_whenHoaxIsValidAndUserIsAuthorized_hoaxSavedToDatabaseWithTimestamp() {
+        userService.save(TestUtil.createValidUser("user1"));
+        authenticate("user1");
+        Hoax hoax = TestUtil.createValidHoax();
+        postHoax(hoax, Object.class);
+
+        Hoax inDB = hoaxRepository.findAll().get(0);
+
+        assertThat(inDB.getTimestamp()).isNotNull();
+    }
 }

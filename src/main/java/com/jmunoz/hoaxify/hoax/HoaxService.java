@@ -2,6 +2,8 @@ package com.jmunoz.hoaxify.hoax;
 
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+
 @Service
 public class HoaxService {
 
@@ -16,6 +18,7 @@ public class HoaxService {
     }
 
     public void save(Hoax hoax) {
+        hoax.setTimestamp(new Date());
         hoaxRepository.save(hoax);
     }
 }
