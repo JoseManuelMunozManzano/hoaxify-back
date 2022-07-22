@@ -2,6 +2,7 @@ package com.jmunoz.hoaxify;
 
 import com.jmunoz.hoaxify.error.ApiError;
 import com.jmunoz.hoaxify.hoax.Hoax;
+import com.jmunoz.hoaxify.hoax.HoaxRepository;
 import com.jmunoz.hoaxify.user.UserRepository;
 import com.jmunoz.hoaxify.user.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,6 +31,9 @@ public class HoaxControllerTest {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    HoaxRepository hoaxRepository;
 
     @BeforeEach
     void setUp() {
@@ -73,5 +77,16 @@ public class HoaxControllerTest {
         // No hay que hacer nada para que pase este test ya que el error se está manejando en nuestro
         // ErrorHandler (ver package error, clase ErrorHandler.java) genérico, que mapea los fallos a ApiError
         assertThat(response.getBody().getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
+    }
+
+    @Test
+    void postHoax_whenHoaxIsValidAndUserIsAuthorized_hoaxSavedToDatabase() {
+        userService.save(TestUtil.createValidUser("user1"));
+        authenticate("user1");
+
+        Hoax hoax = TestUtil.createValidHoax();
+        postHoax(hoax, Object.class);
+
+        assertThat(hoaxRepository.count()).isEqualTo(1);
     }
 }
