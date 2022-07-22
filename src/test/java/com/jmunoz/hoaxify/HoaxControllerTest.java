@@ -37,6 +37,7 @@ public class HoaxControllerTest {
 
     @BeforeEach
     void setUp() {
+        hoaxRepository.deleteAll();
         userRepository.deleteAll();
         testRestTemplate.getRestTemplate().getInterceptors().clear();
     }
