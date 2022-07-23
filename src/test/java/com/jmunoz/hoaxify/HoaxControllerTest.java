@@ -16,6 +16,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.transaction.TestTransaction;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -207,12 +209,20 @@ public class HoaxControllerTest {
     }
 
     @Test
+    @Transactional
     void postHoax_whenHoaxIsValidAndUserIsAuthorized_hoaxCanBeAccessedFromUserEntity() {
         userService.save(TestUtil.createValidUser("user1"));
+        // Se añade @Transactional a este test. Pero esto añade un nuevo problema.
+        // Tenemos múltiples transacciones de BD en este test y tenemos que gestionarlas de una en una.
+        // Se usa TestTransaction.
+        TestTransaction.flagForCommit();
+        TestTransaction.end();
+
         authenticate("user1");
         Hoax hoax = TestUtil.createValidHoax();
         postHoax(hoax, Object.class);
 
+        TestTransaction.start();
         User inDBUser = userRepository.findByUsername("user1");
 
         // Un hoax puede tener 1 usuario, pero un usuario puede postear muchos hoaxes
@@ -237,8 +247,12 @@ public class HoaxControllerTest {
         // 1. Añadir un query customizado a nuestro HoaxRespository. Ver método countByUserUsername
         //    Esto arregla el problema, pero tampoco es la forma ideal de manejar este test, porque se está
         //    añadiendo a la app una query que solo se va a usar en tests.
-        long count = hoaxRepository.countByUserUsername("user1");
-        assertThat(count).isEqualTo(1);
-//        assertThat(inDBUser.getHoaxes().size()).isEqualTo(1);
+        // 2. Ejecutar nuestro método test de manera transaccional. Esto significa que, cuando ejecutamos
+        //    un método del repository, antes Spring creará una transacción, que estará abierta hasta
+        //    que la ejecución del método se complete.
+        //    Como la transacción estará abierta tras la carga del usuario desde BD, cuando intentemos
+        //    obtener la lista de Hoax, Hibernate podrá cargar de forma lazy las entradas Hoax desde BD,
+        //    obteniendo el tamaño de esa lista.
+        assertThat(inDBUser.getHoaxes().size()).isEqualTo(1);
     }
 }
