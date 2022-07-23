@@ -1,5 +1,6 @@
 package com.jmunoz.hoaxify.hoax;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jmunoz.hoaxify.user.User;
 import lombok.Data;
 
@@ -27,7 +28,7 @@ public class Hoax {
     private Date timestamp;
 
     // Relación muchos Hoaxes pueden pertenecer a un User
-    // Al informar @ManyToOne ya no se puede informar la anotación @Column
     @ManyToOne
+    @JsonIgnore
     private User user;
 }

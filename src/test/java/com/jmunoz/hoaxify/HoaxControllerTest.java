@@ -3,6 +3,7 @@ package com.jmunoz.hoaxify;
 import com.jmunoz.hoaxify.error.ApiError;
 import com.jmunoz.hoaxify.hoax.Hoax;
 import com.jmunoz.hoaxify.hoax.HoaxRepository;
+import com.jmunoz.hoaxify.hoax.HoaxService;
 import com.jmunoz.hoaxify.user.User;
 import com.jmunoz.hoaxify.user.UserRepository;
 import com.jmunoz.hoaxify.user.UserService;
@@ -45,6 +46,9 @@ public class HoaxControllerTest {
 
     @Autowired
     HoaxRepository hoaxRepository;
+
+    @Autowired
+    HoaxService hoaxService;
 
     @PersistenceUnit
     private EntityManagerFactory entityManagerFactory;
@@ -274,5 +278,23 @@ public class HoaxControllerTest {
     void getHoaxes_whenThereAreNoHoaxes_receivePageWithZeroItems() {
         ResponseEntity<TestPage<Object>> response = getHoaxes(new ParameterizedTypeReference<TestPage<Object>>() {});
         assertThat(response.getBody().getTotalElements()).isEqualTo(0);
+    }
+
+    @Test
+    void getHoaxes_whenThereAreHoaxes_receivePageWithItems() {
+        User user = userService.save(TestUtil.createValidUser("user1"));
+        hoaxService.save(user, TestUtil.createValidHoax());
+        hoaxService.save(user, TestUtil.createValidHoax());
+        hoaxService.save(user, TestUtil.createValidHoax());
+
+        // En este test se produce un bucle infinito cuando tratamos de construir el JSON a partir del objeto Hoax.
+        // Cuando se obtiene el objeto Hoax, Spring pide a Jackson que lo convierta en JSON, y cuando lo hace,
+        // comprueba los campos de Hoax y encuentra el campo User. Jackson lo intenta convertir a JSON, así que
+        // comprueba los campos de User y encuentra el campo Hoax, así que lo intenta convertir a JSON y sigue
+        // y sigue...
+        // Esto se puede corregir:
+        // 1. Usando la propiedad @JsonIgnore en la clase Hoax, campo User
+        ResponseEntity<TestPage<Object>> response = getHoaxes(new ParameterizedTypeReference<TestPage<Object>>() {});
+        assertThat(response.getBody().getTotalElements()).isEqualTo(3);
     }
 }
