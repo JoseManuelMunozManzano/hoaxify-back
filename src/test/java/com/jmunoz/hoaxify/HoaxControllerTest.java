@@ -361,4 +361,16 @@ public class HoaxControllerTest {
         HoaxVM storedHoax = response.getBody().getContent().get(0);
         assertThat(storedHoax.getUser().getUsername()).isEqualTo("user1");
     }
+
+    @Test
+    void getHoaxesOfUser_whenUserExistWithMultipleHoaxes_receivePageWithMatchingHoaxesCount() {
+        User user = userService.save(TestUtil.createValidUser("user1"));
+        hoaxService.save(user, TestUtil.createValidHoax());
+        hoaxService.save(user, TestUtil.createValidHoax());
+        hoaxService.save(user, TestUtil.createValidHoax());
+
+        ResponseEntity<TestPage<HoaxVM>> response =
+                getHoaxesOfUser("user1", new ParameterizedTypeReference<TestPage<HoaxVM>>() {});
+        assertThat(response.getBody().getTotalElements()).isEqualTo(3);
+    }
 }
