@@ -27,7 +27,7 @@ public class HoaxController {
     }
 
     @GetMapping("/users/{username}/hoaxes")
-    void getHoaxesOfUser() {
-
+    void getHoaxesOfUser(@PathVariable String username) {
+        hoaxService.getHoaxesOfUser(username);
     }
 }

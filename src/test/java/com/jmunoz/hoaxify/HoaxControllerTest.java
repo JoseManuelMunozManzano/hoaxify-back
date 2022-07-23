@@ -334,4 +334,11 @@ public class HoaxControllerTest {
         ResponseEntity<Object> response = testRestTemplate.getForEntity(path, Object.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
+
+    @Test
+    void getHoaxesOfUser_whenUserDoesNotExist_receiveNotFound() {
+        String path = "/api/1.0/users/unknown-user/hoaxes";
+        ResponseEntity<Object> response = testRestTemplate.getForEntity(path, Object.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
 }
