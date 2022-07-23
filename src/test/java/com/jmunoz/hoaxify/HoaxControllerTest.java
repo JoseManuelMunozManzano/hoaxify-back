@@ -373,4 +373,23 @@ public class HoaxControllerTest {
                 getHoaxesOfUser("user1", new ParameterizedTypeReference<TestPage<HoaxVM>>() {});
         assertThat(response.getBody().getTotalElements()).isEqualTo(3);
     }
+
+    // Testeando el comportamiento de nuestro query method en HoaxRepository
+    // Se hace en esta clase en vez de crear una nueva como se hizo con UserRepositoryTest
+    @Test
+    void getHoaxesOfUser_whenMultipleUserExistWithMultipleHoaxes_receivePageWithMatchingHoaxesCount() {
+        User userWithThreeHoaxes = userService.save(TestUtil.createValidUser("user1"));
+        IntStream.rangeClosed(1, 3).forEach(i -> {
+            hoaxService.save(userWithThreeHoaxes, TestUtil.createValidHoax());
+        });
+
+        User userWithFiveHoaxes = userService.save(TestUtil.createValidUser("user2"));
+        IntStream.rangeClosed(1, 5).forEach(i -> {
+            hoaxService.save(userWithFiveHoaxes, TestUtil.createValidHoax());
+        });
+
+        ResponseEntity<TestPage<HoaxVM>> response =
+                getHoaxesOfUser(userWithFiveHoaxes.getUsername(), new ParameterizedTypeReference<TestPage<HoaxVM>>() {});
+        assertThat(response.getBody().getTotalElements()).isEqualTo(5);
+    }
 }
