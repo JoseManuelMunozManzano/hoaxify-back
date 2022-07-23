@@ -27,7 +27,7 @@ public class HoaxController {
     }
 
     @GetMapping("/users/{username}/hoaxes")
-    Page<?> getHoaxesOfUser(@PathVariable String username, Pageable pageable) {
-        return hoaxService.getHoaxesOfUser(username, pageable);
+    Page<HoaxVM> getHoaxesOfUser(@PathVariable String username, Pageable pageable) {
+        return hoaxService.getHoaxesOfUser(username, pageable).map(HoaxVM::new);
     }
 }
