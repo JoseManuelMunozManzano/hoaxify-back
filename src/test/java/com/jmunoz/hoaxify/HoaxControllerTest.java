@@ -16,9 +16,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.transaction.TestTransaction;
-import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceUnit;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -42,6 +43,9 @@ public class HoaxControllerTest {
 
     @Autowired
     HoaxRepository hoaxRepository;
+
+    @PersistenceUnit
+    private EntityManagerFactory entityManagerFactory;
 
     @BeforeEach
     void setUp() {
@@ -209,21 +213,15 @@ public class HoaxControllerTest {
     }
 
     @Test
-    @Transactional
     void postHoax_whenHoaxIsValidAndUserIsAuthorized_hoaxCanBeAccessedFromUserEntity() {
-        userService.save(TestUtil.createValidUser("user1"));
-        // Se añade @Transactional a este test. Pero esto añade un nuevo problema.
-        // Tenemos múltiples transacciones de BD en este test y tenemos que gestionarlas de una en una.
-        // Se usa TestTransaction.
-        TestTransaction.flagForCommit();
-        TestTransaction.end();
-
+        User user = userService.save(TestUtil.createValidUser("user1"));
         authenticate("user1");
         Hoax hoax = TestUtil.createValidHoax();
         postHoax(hoax, Object.class);
 
-        TestTransaction.start();
-        User inDBUser = userRepository.findByUsername("user1");
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        // Pasamos el tipo de objeto que buscamos y su primary key
+        User inDBUser = entityManager.find(User.class, user.getId());
 
         // Un hoax puede tener 1 usuario, pero un usuario puede postear muchos hoaxes
         // Cuando añadimos la lista de hoaxes en la tabla User fallan todos los tests.
@@ -253,6 +251,10 @@ public class HoaxControllerTest {
         //    Como la transacción estará abierta tras la carga del usuario desde BD, cuando intentemos
         //    obtener la lista de Hoax, Hibernate podrá cargar de forma lazy las entradas Hoax desde BD,
         //    obteniendo el tamaño de esa lista.
+        // 3. El problema empieza con nuestro userRepository.findByUsername() que devuelve un
+        //    objeto User, y la correspondiente transacción termina inmediatamente.
+        //    En vez de usar repository podemos usar Jpa EntityManager y ejecutar la query
+        //    para cargar el usuario.
         assertThat(inDBUser.getHoaxes().size()).isEqualTo(1);
     }
 }
