@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
@@ -74,6 +76,10 @@ public class HoaxControllerTest {
 
     private <T> ResponseEntity<T> postHoax(Hoax hoax, Class<T> responseType) {
         return testRestTemplate.postForEntity(API_1_0_HOAXES, hoax, responseType);
+    }
+
+    public <T> ResponseEntity<T> getHoaxes(ParameterizedTypeReference<T> responseType) {
+        return testRestTemplate.exchange(API_1_0_HOAXES, HttpMethod.GET, null, responseType);
     }
 
     @Test
@@ -260,7 +266,7 @@ public class HoaxControllerTest {
 
     @Test
     void getHoaxes_whenThereAreNoHoaxes_receiveOk() {
-        ResponseEntity<Object> response = testRestTemplate.getForEntity(API_1_0_HOAXES, Object.class);
+        ResponseEntity<Object> response = getHoaxes(new ParameterizedTypeReference<Object>() {});
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 }
