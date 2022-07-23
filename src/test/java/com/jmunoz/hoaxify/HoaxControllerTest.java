@@ -324,4 +324,14 @@ public class HoaxControllerTest {
         ResponseEntity<HoaxVM> response = postHoax(hoax, HoaxVM.class);
         assertThat(response.getBody().getUser().getUsername()).isEqualTo("user1");
     }
+
+    @Test
+    void getHoaxesOfUser_whenUserExists_receiveOk() {
+        userService.save(TestUtil.createValidUser("user1"));
+        // Tenemos la relación entre User y Hoax y necesitamos pasar esta información en la URL.
+        // Así obtenemos los hoaxes de un User.
+        String path = "/api/1.0/users/user1/hoaxes";
+        ResponseEntity<Object> response = testRestTemplate.getForEntity(path, Object.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
 }
