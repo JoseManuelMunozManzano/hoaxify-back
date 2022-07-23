@@ -87,6 +87,11 @@ public class HoaxControllerTest {
         return testRestTemplate.exchange(API_1_0_HOAXES, HttpMethod.GET, null, responseType);
     }
 
+    public <T> ResponseEntity<T> getHoaxesOfUser(String username, ParameterizedTypeReference<T> responseType) {
+        String path = "/api/1.0/users/" + username + "/hoaxes";
+        return testRestTemplate.exchange(path, HttpMethod.GET, null, responseType);
+    }
+
     @Test
     void postHoax_whenHoaxIsValidAndUserIsAuthorized_receiveOk() {
         userService.save(TestUtil.createValidUser("user1"));
@@ -328,17 +333,13 @@ public class HoaxControllerTest {
     @Test
     void getHoaxesOfUser_whenUserExists_receiveOk() {
         userService.save(TestUtil.createValidUser("user1"));
-        // Tenemos la relación entre User y Hoax y necesitamos pasar esta información en la URL.
-        // Así obtenemos los hoaxes de un User.
-        String path = "/api/1.0/users/user1/hoaxes";
-        ResponseEntity<Object> response = testRestTemplate.getForEntity(path, Object.class);
+        ResponseEntity<Object> response = getHoaxesOfUser("user1", new ParameterizedTypeReference<Object>() {});
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     @Test
     void getHoaxesOfUser_whenUserDoesNotExist_receiveNotFound() {
-        String path = "/api/1.0/users/unknown-user/hoaxes";
-        ResponseEntity<Object> response = testRestTemplate.getForEntity(path, Object.class);
+        ResponseEntity<Object> response = getHoaxesOfUser("unknown-user", new ParameterizedTypeReference<Object>() {});
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 }
