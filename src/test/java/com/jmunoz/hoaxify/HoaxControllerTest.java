@@ -269,4 +269,10 @@ public class HoaxControllerTest {
         ResponseEntity<Object> response = getHoaxes(new ParameterizedTypeReference<Object>() {});
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
+
+    @Test
+    void getHoaxes_whenThereAreNoHoaxes_receivePageWithZeroItems() {
+        ResponseEntity<TestPage<Object>> response = getHoaxes(new ParameterizedTypeReference<TestPage<Object>>() {});
+        assertThat(response.getBody().getTotalElements()).isEqualTo(0);
+    }
 }

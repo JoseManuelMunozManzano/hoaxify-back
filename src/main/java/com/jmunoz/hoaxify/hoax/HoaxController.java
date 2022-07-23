@@ -3,6 +3,8 @@ package com.jmunoz.hoaxify.hoax;
 import com.jmunoz.hoaxify.shared.CurrentUser;
 import com.jmunoz.hoaxify.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -20,7 +22,7 @@ public class HoaxController {
     }
 
     @GetMapping("/hoaxes")
-    void getAllHoaxes() {
-
+    Page<?> getAllHoaxes(Pageable pageable) {
+        return hoaxService.getAllHoaxes(pageable);
     }
 }

@@ -1,6 +1,8 @@
 package com.jmunoz.hoaxify.hoax;
 
 import com.jmunoz.hoaxify.user.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -22,5 +24,9 @@ public class HoaxService {
         hoax.setTimestamp(new Date());
         hoax.setUser(user);
         hoaxRepository.save(hoax);
+    }
+
+    public Page<Hoax> getAllHoaxes(Pageable pageable) {
+        return hoaxRepository.findAll(pageable);
     }
 }
