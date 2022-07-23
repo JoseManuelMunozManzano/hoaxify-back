@@ -29,6 +29,5 @@ public class Hoax {
 
     // Relación muchos Hoaxes pueden pertenecer a un User
     @ManyToOne
-    @JsonIgnore
     private User user;
 }

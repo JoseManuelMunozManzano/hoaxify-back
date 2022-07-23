@@ -4,6 +4,7 @@ import com.jmunoz.hoaxify.error.ApiError;
 import com.jmunoz.hoaxify.hoax.Hoax;
 import com.jmunoz.hoaxify.hoax.HoaxRepository;
 import com.jmunoz.hoaxify.hoax.HoaxService;
+import com.jmunoz.hoaxify.hoax.HoaxVM;
 import com.jmunoz.hoaxify.user.User;
 import com.jmunoz.hoaxify.user.UserRepository;
 import com.jmunoz.hoaxify.user.UserService;
@@ -293,8 +294,24 @@ public class HoaxControllerTest {
         // comprueba los campos de User y encuentra el campo Hoax, así que lo intenta convertir a JSON y sigue
         // y sigue...
         // Esto se puede corregir:
-        // 1. Usando la propiedad @JsonIgnore en la clase Hoax, campo User
+        // 1. Usando la propiedad @JsonIgnore en la clase Hoax, campo User.
+        //    De esta forma no sabemos qué usuario creo el Hoax, por lo que será problemático en la
+        //    implementación en el cliente cuando mostremos los hoaxes, porque queremos informar también
+        //    los datos del usuario.
+        // 2. Implementando Hoax View Model Object.
+        //    Se crea una clase HoaxVM donde sí que tenemos los datos de usuario.
+        //    Ver el siguiente test
         ResponseEntity<TestPage<Object>> response = getHoaxes(new ParameterizedTypeReference<TestPage<Object>>() {});
         assertThat(response.getBody().getTotalElements()).isEqualTo(3);
+    }
+
+    @Test
+    void getHoaxes_whenThereAreHoaxes_receivePageWithHoaxVM() {
+        User user = userService.save(TestUtil.createValidUser("user1"));
+        hoaxService.save(user, TestUtil.createValidHoax());
+
+        ResponseEntity<TestPage<HoaxVM>> response = getHoaxes(new ParameterizedTypeReference<TestPage<HoaxVM>>() {});
+        HoaxVM storedHoax = response.getBody().getContent().get(0);
+        assertThat(storedHoax.getUser().getUsername()).isEqualTo("user1");
     }
 }

@@ -22,7 +22,7 @@ public class HoaxController {
     }
 
     @GetMapping("/hoaxes")
-    Page<?> getAllHoaxes(Pageable pageable) {
-        return hoaxService.getAllHoaxes(pageable);
+    Page<HoaxVM> getAllHoaxes(Pageable pageable) {
+        return hoaxService.getAllHoaxes(pageable).map(HoaxVM::new);
     }
 }
