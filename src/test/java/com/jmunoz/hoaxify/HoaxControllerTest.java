@@ -227,6 +227,18 @@ public class HoaxControllerTest {
         // La ejecución de nuestra app no daría este error, al menos por ahora.
         //
         // Para corregir el problema hay que configurar la anotación @OneToMany. Ver User.java
-        assertThat(inDBUser.getHoaxes().size()).isEqualTo(1);
+        // Estableciendo la carga de datos como EAGER (no LAZY) nuestro test funciona
+        //
+        // Pero tiene un problema, que EAGER toma más tiempo de procesador, ya que al cargar Users también
+        // se cargarán sus Hoaxes, y un usuario podría tener miles de Hoaxes.
+        // El rendimiento de nuestra app se ve muy impactado.
+        // Por tanto, lo vamos a eliminar.
+        // Opciones para corregir este problema:
+        // 1. Añadir un query customizado a nuestro HoaxRespository. Ver método countByUserUsername
+        //    Esto arregla el problema, pero tampoco es la forma ideal de manejar este test, porque se está
+        //    añadiendo a la app una query que solo se va a usar en tests.
+        long count = hoaxRepository.countByUserUsername("user1");
+        assertThat(count).isEqualTo(1);
+//        assertThat(inDBUser.getHoaxes().size()).isEqualTo(1);
     }
 }
