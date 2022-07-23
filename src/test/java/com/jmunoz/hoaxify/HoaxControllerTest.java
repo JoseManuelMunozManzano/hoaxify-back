@@ -257,4 +257,10 @@ public class HoaxControllerTest {
         //    para cargar el usuario.
         assertThat(inDBUser.getHoaxes().size()).isEqualTo(1);
     }
+
+    @Test
+    void getHoaxes_whenThereAreNoHoaxes_receiveOk() {
+        ResponseEntity<Object> response = testRestTemplate.getForEntity(API_1_0_HOAXES, Object.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
 }

@@ -18,4 +18,9 @@ public class HoaxController {
     void createHoax(@Valid @RequestBody Hoax hoax, @CurrentUser User user) {
         hoaxService.save(user, hoax);
     }
+
+    @GetMapping("/hoaxes")
+    void getAllHoaxes() {
+
+    }
 }
