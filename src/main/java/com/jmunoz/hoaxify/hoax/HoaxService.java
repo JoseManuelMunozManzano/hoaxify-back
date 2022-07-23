@@ -34,8 +34,8 @@ public class HoaxService {
         return hoaxRepository.findAll(pageable);
     }
 
-    public void getHoaxesOfUser(String username) {
-        // Si no existe el usuario en BD, este método lanzará una excepción que ya está mapeada a 404
+    public Page<Hoax> getHoaxesOfUser(String username, Pageable pageable) {
         User inDB = userService.getByUsername(username);
+        return hoaxRepository.findByUser(inDB, pageable);
     }
 }
