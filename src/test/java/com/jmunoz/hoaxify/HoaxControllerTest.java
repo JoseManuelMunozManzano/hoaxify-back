@@ -314,4 +314,14 @@ public class HoaxControllerTest {
         HoaxVM storedHoax = response.getBody().getContent().get(0);
         assertThat(storedHoax.getUser().getUsername()).isEqualTo("user1");
     }
+
+    @Test
+    void postHoax_whenHoaxIsValidAndUserIsAuthorized_receiveHoaxVM() {
+        userService.save(TestUtil.createValidUser("user1"));
+        authenticate("user1");
+
+        Hoax hoax = TestUtil.createValidHoax();
+        ResponseEntity<HoaxVM> response = postHoax(hoax, HoaxVM.class);
+        assertThat(response.getBody().getUser().getUsername()).isEqualTo("user1");
+    }
 }

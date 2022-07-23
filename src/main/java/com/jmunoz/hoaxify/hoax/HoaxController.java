@@ -17,8 +17,8 @@ public class HoaxController {
     HoaxService hoaxService;
 
     @PostMapping("/hoaxes")
-    void createHoax(@Valid @RequestBody Hoax hoax, @CurrentUser User user) {
-        hoaxService.save(user, hoax);
+    HoaxVM createHoax(@Valid @RequestBody Hoax hoax, @CurrentUser User user) {
+        return new HoaxVM(hoaxService.save(user, hoax));
     }
 
     @GetMapping("/hoaxes")
