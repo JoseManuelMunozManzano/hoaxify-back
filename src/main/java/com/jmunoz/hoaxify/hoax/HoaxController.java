@@ -32,7 +32,7 @@ public class HoaxController {
     }
 
     @GetMapping("/hoaxes/{id:[0-9]+}")
-    void getHoaxesRelative() {
-
+    Page<?> getHoaxesRelative(@PathVariable long id, Pageable pageable) {
+        return hoaxService.getOldHoaxes(id, pageable);
     }
 }

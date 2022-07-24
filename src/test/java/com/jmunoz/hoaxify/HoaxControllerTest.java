@@ -405,4 +405,21 @@ public class HoaxControllerTest {
         ResponseEntity<Object> response = getOldHoaxes(5, new ParameterizedTypeReference<Object>() {});
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
+
+    @Test
+    void getOldHoaxes_whenThereAreHoaxes_receivePageWithItemsProvidedId() {
+        User user = userService.save(TestUtil.createValidUser("user1"));
+        hoaxService.save(user, TestUtil.createValidHoax());
+        hoaxService.save(user, TestUtil.createValidHoax());
+        hoaxService.save(user, TestUtil.createValidHoax());
+        Hoax fourth = hoaxService.save(user, TestUtil.createValidHoax());
+        hoaxService.save(user, TestUtil.createValidHoax());
+
+        ResponseEntity<TestPage<Object>> response =
+                getOldHoaxes(fourth.getId(), new ParameterizedTypeReference<TestPage<Object>>() {});
+
+        // Falla porque en respuesta se devuelven Hoax y eso causa stack overflow con Jackson.
+        // Se va a corregir devolviendo una respuesta HoaxVM
+        assertThat(response.getBody().getTotalElements()).isEqualTo(3);
+    }
 }
