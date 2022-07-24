@@ -33,6 +33,6 @@ public class HoaxController {
 
     @GetMapping("/hoaxes/{id:[0-9]+}")
     Page<?> getHoaxesRelative(@PathVariable long id, Pageable pageable) {
-        return hoaxService.getOldHoaxes(id, pageable);
+        return hoaxService.getOldHoaxes(id, pageable).map(HoaxVM::new);
     }
 }
