@@ -92,6 +92,13 @@ public class HoaxControllerTest {
         return testRestTemplate.exchange(path, HttpMethod.GET, null, responseType);
     }
 
+    public <T> ResponseEntity<T> getOldHoaxes(long hoaxId, ParameterizedTypeReference<T> responseType) {
+        // Es necesario el hoaxId para en las siguientes cargas no llevar información errónea porque se han grabado
+        // más hoaxes
+        String path = API_1_0_HOAXES + "/" + hoaxId + "?direction=before&page=0&size=5&sort=id,desc";
+        return testRestTemplate.exchange(path, HttpMethod.GET, null, responseType);
+    }
+
     @Test
     void postHoax_whenHoaxIsValidAndUserIsAuthorized_receiveOk() {
         userService.save(TestUtil.createValidUser("user1"));
@@ -391,5 +398,11 @@ public class HoaxControllerTest {
         ResponseEntity<TestPage<HoaxVM>> response =
                 getHoaxesOfUser(userWithFiveHoaxes.getUsername(), new ParameterizedTypeReference<TestPage<HoaxVM>>() {});
         assertThat(response.getBody().getTotalElements()).isEqualTo(5);
+    }
+
+    @Test
+    void getOldHoaxes_whenThereAreNoHoaxes_receiveOk() {
+        ResponseEntity<Object> response = getOldHoaxes(5, new ParameterizedTypeReference<Object>() {});
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 }
