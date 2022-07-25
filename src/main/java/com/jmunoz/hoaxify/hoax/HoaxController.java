@@ -56,7 +56,8 @@ public class HoaxController {
             return ResponseEntity.ok(hoaxService.getOldHoaxesOfUser(id, username, pageable).map(HoaxVM::new));
         }
 
-        List<Hoax> newHoaxes = hoaxService.getNewHoaxesOfUser(id, username, pageable);
+        List<HoaxVM> newHoaxes = hoaxService.getNewHoaxesOfUser(id, username, pageable)
+                .stream().map(HoaxVM::new).collect(Collectors.toList());
         return ResponseEntity.ok(newHoaxes);
     }
 }
