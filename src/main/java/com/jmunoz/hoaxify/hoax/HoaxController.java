@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/1.0")
@@ -42,7 +43,9 @@ public class HoaxController {
             return ResponseEntity.ok(hoaxService.getOldHoaxes(id, pageable).map(HoaxVM::new));
         }
 
-        List<Hoax> newHoaxes = hoaxService.getNewHoaxes(id, pageable);
+        // Así es como se mapea un array de objetos a otro tipo de objetos
+        List<HoaxVM> newHoaxes = hoaxService.getNewHoaxes(id, pageable)
+                .stream().map(HoaxVM::new).collect(Collectors.toList());
         return ResponseEntity.ok(newHoaxes);
     }
 

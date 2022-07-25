@@ -537,4 +537,19 @@ public class HoaxControllerTest {
         // JSON. Se corrige usando una response HoaxVM en el siguiente test.
         assertThat(response.getBody().size()).isEqualTo(1);
     }
+
+    @Test
+    void getNewHoaxes_whenThereAreHoaxes_receiveListOfHoaxVMAfterProvidedId() {
+        User user = userService.save(TestUtil.createValidUser("user1"));
+        hoaxService.save(user, TestUtil.createValidHoax());
+        hoaxService.save(user, TestUtil.createValidHoax());
+        hoaxService.save(user, TestUtil.createValidHoax());
+        Hoax fourth = hoaxService.save(user, TestUtil.createValidHoax());
+        hoaxService.save(user, TestUtil.createValidHoax());
+
+        ResponseEntity<List<HoaxVM>> response =
+                getNewHoaxes(fourth.getId(), new ParameterizedTypeReference<List<HoaxVM>>() {});
+
+        assertThat(response.getBody().get(0).getDate()).isGreaterThan(0);
+    }
 }
