@@ -54,22 +54,4 @@ public class HoaxController {
                 .stream().map(HoaxVM::new).collect(Collectors.toList());
         return ResponseEntity.ok(newHoaxes);
     }
-
-//    @GetMapping("/users/{username}/hoaxes/{id:[0-9]+}")
-//    ResponseEntity<?> getHoaxesRelativeForUser(@PathVariable String username, @PathVariable Long id, Pageable pageable,
-//                                               @RequestParam(name = "direction", defaultValue = "after") String direction,
-//                                               @RequestParam(name = "count", defaultValue = "false", required = false) boolean count) {
-//        if (!direction.equalsIgnoreCase("after")) {
-//            return ResponseEntity.ok(hoaxService.getOldHoaxesOfUser(id, username, pageable).map(HoaxVM::new));
-//        }
-//
-//        if (count) {
-//            long newHoaxCount = hoaxService.getNewHoaxesCountOfUser(id, username);
-//            return ResponseEntity.ok(Collections.singletonMap("count", newHoaxCount));
-//        }
-//
-//        List<HoaxVM> newHoaxes = hoaxService.getNewHoaxesOfUser(id, username, pageable)
-//                .stream().map(HoaxVM::new).collect(Collectors.toList());
-//        return ResponseEntity.ok(newHoaxes);
-//    }
 }
