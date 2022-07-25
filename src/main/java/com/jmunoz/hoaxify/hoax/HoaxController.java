@@ -37,6 +37,7 @@ public class HoaxController {
     }
 
     @GetMapping("/users/{username}/hoaxes/{id:[0-9]+}")
-    void getHoaxesRelativeForUser() {
+    Page<?> getHoaxesRelativeForUser(@PathVariable String username, @PathVariable Long id, Pageable pageable) {
+        return hoaxService.getOldHoaxesOfUser(id, username, pageable);
     }
 }
