@@ -601,4 +601,13 @@ public class HoaxControllerTest {
 
         assertThat(response.getBody().get(0).getDate()).isGreaterThan(0);
     }
+
+    @Test
+    void getNewHoaxesOfUser_whenUserDoesNotExistAndThereAreNoHoaxes_receiveNotFound() {
+        ResponseEntity<Object> response =
+                getNewHoaxesOfUser(5, "user1", new ParameterizedTypeReference<Object>() {});
+        // Este test ya se pasa porque en UserService tenemos el método getByUsername y si no se encuentra usuario
+        // ya hay un Custom Exception (NotFoundException) que devuelve 404
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
 }
