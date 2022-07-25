@@ -492,4 +492,21 @@ public class HoaxControllerTest {
         // ya hay un Custom Exception (NotFoundException) que devuelve 404
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
+
+    @Test
+    void getOldHoaxesOfUser_whenUserExistAndThereAreNoHoaxes_receivePageWitZeroItemsBeforeProvidedId() {
+        User user = userService.save(TestUtil.createValidUser("user1"));
+        hoaxService.save(user, TestUtil.createValidHoax());
+        hoaxService.save(user, TestUtil.createValidHoax());
+        hoaxService.save(user, TestUtil.createValidHoax());
+        Hoax fourth = hoaxService.save(user, TestUtil.createValidHoax());
+        hoaxService.save(user, TestUtil.createValidHoax());
+
+        userService.save(TestUtil.createValidUser("user2"));
+
+        ResponseEntity<TestPage<HoaxVM>> response =
+                getOldHoaxesOfUser(fourth.getId(), "user2", new ParameterizedTypeReference<TestPage<HoaxVM>>() {});
+
+        assertThat(response.getBody().getTotalElements()).isEqualTo(0);
+    }
 }
