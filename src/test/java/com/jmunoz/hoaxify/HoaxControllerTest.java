@@ -24,6 +24,7 @@ import org.springframework.test.context.ActiveProfiles;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -102,6 +103,12 @@ public class HoaxControllerTest {
     public <T> ResponseEntity<T> getOldHoaxesOfUser(long hoaxId, String username, ParameterizedTypeReference<T> responseType) {
         String path = "/api/1.0/users/" + username + "/hoaxes/" + hoaxId
                 + "?direction=before&page=0&size=5&sort=id,desc";
+        return testRestTemplate.exchange(path, HttpMethod.GET, null, responseType);
+    }
+
+    public <T> ResponseEntity<T> getNewHoaxes(long hoaxId, ParameterizedTypeReference<T> responseType) {
+        // Se traen todos los hoaxes nuevos
+        String path = API_1_0_HOAXES + "/" + hoaxId + "?direction=after&sort=id,desc";
         return testRestTemplate.exchange(path, HttpMethod.GET, null, responseType);
     }
 
@@ -412,8 +419,9 @@ public class HoaxControllerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
+    // NOTA: Se ha cambiado el nombre de este test
     @Test
-    void getOldHoaxes_whenThereAreHoaxes_receivePageWithItemsProvidedId() {
+    void getOldHoaxes_whenThereAreHoaxes_receivePageWithItemsBeforeProvidedId() {
         User user = userService.save(TestUtil.createValidUser("user1"));
         hoaxService.save(user, TestUtil.createValidHoax());
         hoaxService.save(user, TestUtil.createValidHoax());
@@ -508,5 +516,25 @@ public class HoaxControllerTest {
                 getOldHoaxesOfUser(fourth.getId(), "user2", new ParameterizedTypeReference<TestPage<HoaxVM>>() {});
 
         assertThat(response.getBody().getTotalElements()).isEqualTo(0);
+    }
+
+    @Test
+    void getNewHoaxes_whenThereAreHoaxes_receiveListOfItemsAfterProvidedId() {
+        User user = userService.save(TestUtil.createValidUser("user1"));
+        hoaxService.save(user, TestUtil.createValidHoax());
+        hoaxService.save(user, TestUtil.createValidHoax());
+        hoaxService.save(user, TestUtil.createValidHoax());
+        Hoax fourth = hoaxService.save(user, TestUtil.createValidHoax());
+        hoaxService.save(user, TestUtil.createValidHoax());
+
+        ResponseEntity<List<Object>> response =
+                getNewHoaxes(fourth.getId(), new ParameterizedTypeReference<List<Object>>() {});
+
+        // Esperamos 1 que es el posterior al hoax fourth
+        // Falla porque Jackson no puede convertir el tipo Page JSON a List.
+        // Se crea un nuevo query method en HoaxRepository y en el controller se devuelve ResponseEntity en vez de Page.
+        // Pero sigue fallando porque en la response devolvemos Hoax y causa stack overflow en la serialización Jackson
+        // JSON. Se corrige usando una response HoaxVM en el siguiente test.
+        assertThat(response.getBody().size()).isEqualTo(1);
     }
 }
