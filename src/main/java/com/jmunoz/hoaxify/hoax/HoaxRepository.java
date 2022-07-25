@@ -5,10 +5,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.util.List;
 
-public interface HoaxRepository extends JpaRepository<Hoax, Long> {
+// Para poder usar Specification (ver HoaxService) tenemos que extender también de JPASpecificationExecutor
+public interface HoaxRepository extends JpaRepository<Hoax, Long>, JpaSpecificationExecutor<Hoax> {
+
+    // Generando queries dinámicas con JPA
 
     Page<Hoax> findByUser(User user, Pageable pageable);
 
