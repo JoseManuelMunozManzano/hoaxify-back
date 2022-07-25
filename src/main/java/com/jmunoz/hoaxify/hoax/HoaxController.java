@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,16 +35,19 @@ public class HoaxController {
         return hoaxService.getHoaxesOfUser(username, pageable).map(HoaxVM::new);
     }
 
-    // Actualizamos tipo de retorno de Page<?> a ResponseEntity porque ahora también podemos devolver una lista.
-    // Con ResponseEntity se pueden envolver diferentes tipos de response body.
     @GetMapping("/hoaxes/{id:[0-9]+}")
     ResponseEntity<?> getHoaxesRelative(@PathVariable long id, Pageable pageable,
-                                        @RequestParam(name = "direction", defaultValue = "after") String direction) {
+                                        @RequestParam(name = "direction", defaultValue = "after") String direction,
+                                        @RequestParam(name = "count", defaultValue = "false", required = false) boolean count) {
         if (!direction.equalsIgnoreCase("after")) {
             return ResponseEntity.ok(hoaxService.getOldHoaxes(id, pageable).map(HoaxVM::new));
         }
 
-        // Así es como se mapea un array de objetos a otro tipo de objetos
+        if (count) {
+            long newHoaxCount = hoaxService.getNewHoaxesCount(id);
+            return ResponseEntity.ok(Collections.singletonMap("count", newHoaxCount));
+        }
+
         List<HoaxVM> newHoaxes = hoaxService.getNewHoaxes(id, pageable)
                 .stream().map(HoaxVM::new).collect(Collectors.toList());
         return ResponseEntity.ok(newHoaxes);

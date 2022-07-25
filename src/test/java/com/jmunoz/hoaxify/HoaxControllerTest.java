@@ -118,6 +118,12 @@ public class HoaxControllerTest {
         return testRestTemplate.exchange(path, HttpMethod.GET, null, responseType);
     }
 
+    // Util en la parte cliente para saber la cuenta de hoaxes nuevos y mostrar un botón para cargar nuevos hoaxes
+    public <T> ResponseEntity<T> getNewHoaxCount(long hoaxId, ParameterizedTypeReference<T> responseType) {
+        String path = API_1_0_HOAXES + "/" + hoaxId + "?direction=after&count=true";
+        return testRestTemplate.exchange(path, HttpMethod.GET, null, responseType);
+    }
+
     @Test
     void postHoax_whenHoaxIsValidAndUserIsAuthorized_receiveOk() {
         userService.save(TestUtil.createValidUser("user1"));
@@ -626,5 +632,21 @@ public class HoaxControllerTest {
                 getNewHoaxesOfUser(fourth.getId(), "user2", new ParameterizedTypeReference<List<HoaxVM>>() {});
 
         assertThat(response.getBody().size()).isEqualTo(0);
+    }
+
+    @Test
+    void getNewHoaxCount_whenThereAreHoaxes_receiveCountAfterProvidedId() {
+        User user = userService.save(TestUtil.createValidUser("user1"));
+        hoaxService.save(user, TestUtil.createValidHoax());
+        hoaxService.save(user, TestUtil.createValidHoax());
+        hoaxService.save(user, TestUtil.createValidHoax());
+        Hoax fourth = hoaxService.save(user, TestUtil.createValidHoax());
+        hoaxService.save(user, TestUtil.createValidHoax());
+
+        // Por ahora no definimos un modelo para el body response. Es generalista
+        ResponseEntity<Map<String, Long>> response =
+                getNewHoaxCount(fourth.getId(), new ParameterizedTypeReference<Map<String, Long>>() {});
+
+        assertThat(response.getBody().get("count")).isEqualTo(1);
     }
 }
