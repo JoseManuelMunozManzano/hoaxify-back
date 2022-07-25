@@ -566,4 +566,24 @@ public class HoaxControllerTest {
                 getNewHoaxesOfUser(5, "user1", new ParameterizedTypeReference<Object>() {});
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
+
+    @Test
+    void getNewHoaxesOfUser_whenUserExistAndThereAreHoaxes_receiveListWithItemsAfterProvidedId() {
+        User user = userService.save(TestUtil.createValidUser("user1"));
+        hoaxService.save(user, TestUtil.createValidHoax());
+        hoaxService.save(user, TestUtil.createValidHoax());
+        hoaxService.save(user, TestUtil.createValidHoax());
+        Hoax fourth = hoaxService.save(user, TestUtil.createValidHoax());
+        hoaxService.save(user, TestUtil.createValidHoax());
+
+        ResponseEntity<List<Object>> response =
+                getNewHoaxesOfUser(fourth.getId(), "user1", new ParameterizedTypeReference<List<Object>>() {});
+
+        // Falla porque no estamos chequeando la dirección en el método getHoaxesRelativeForUser, ya que solo
+        // estamos devolviendo una response para BeforeId del tipo Page<Object>
+        // Se crea un nuevo query method en HoaxRepository y en el controller se devuelve ResponseEntity en vez de Page.
+        // Pero sigue fallando porque en la response devolvemos Hoax y causa stack overflow en la serialización Jackson
+        // JSON. Se corrige usando una response HoaxVM en el siguiente test.
+        assertThat(response.getBody().size()).isEqualTo(1);
+    }
 }
