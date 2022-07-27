@@ -1,6 +1,7 @@
 package com.jmunoz.hoaxify;
 
 import com.jmunoz.hoaxify.configuration.AppConfiguration;
+import com.jmunoz.hoaxify.file.FileAttachment;
 import com.jmunoz.hoaxify.user.UserRepository;
 import com.jmunoz.hoaxify.user.UserService;
 import org.apache.commons.io.FileUtils;
@@ -87,5 +88,17 @@ public class FileUploadControllerTest {
         //    en esa autenticación.
         //    Hay que ejecutar aquí todos los tests, porque este cambio afecta a toda la seguridad.
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+    }
+
+    // Se va a tratar el tema de un usuario que sube una imagen para un hoax, pero luego no hace submit,
+    // con lo que la imagen se queda almacenada en el backend sin asociarse a ningún hoax.
+    // Para saber si una imagen está asociada o no a un hoax se creará una nueva Entity y más tarde
+    // se usará para limpiar imágenes almacenadas.
+    @Test
+    void uploadFile_withImageFromAuthorizedUser_receiveFileAttachmentWithDate() {
+        userService.save(TestUtil.createValidUser("user1"));
+        authenticate("user1");
+        ResponseEntity<FileAttachment> response = uploadFile(geRequestEntity(), FileAttachment.class);
+        assertThat(response.getBody().getDate()).isNotNull();
     }
 }
