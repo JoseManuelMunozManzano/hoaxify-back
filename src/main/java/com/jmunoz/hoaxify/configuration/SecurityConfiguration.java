@@ -47,6 +47,7 @@ public class SecurityConfiguration {
                 .antMatchers(HttpMethod.POST, "/api/1.0/login").authenticated()
                 .antMatchers(HttpMethod.PUT, "/api/1.0/users/{id:[0-9]+}").authenticated()
                 .antMatchers(HttpMethod.POST, "/api/1.0/hoaxes").authenticated()
+                .antMatchers(HttpMethod.POST, "/api/1.0/hoaxes/upload").authenticated()
                 .and()
                 .authorizeRequests().anyRequest().permitAll();
 

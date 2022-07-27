@@ -74,4 +74,14 @@ public class FileUploadControllerTest {
         ResponseEntity<Object> response = uploadFile(geRequestEntity(), Object.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
+
+    @Test
+    void uploadFile_withImageFromUnauthorizedUser_receiveUnauthorized() {
+        ResponseEntity<Object> response = uploadFile(geRequestEntity(), Object.class);
+        // Para que este test pase tenemos que actualizar la configuración de la seguridad, el mapeo
+        // de la autorización
+        // Hay 2 opciones:
+        // 1. Al igual que los otros mapeos que hay, añadimos otro antMatcher
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+    }
 }
