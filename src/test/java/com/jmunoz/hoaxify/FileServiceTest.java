@@ -36,7 +36,7 @@ public class FileServiceTest {
         appConfiguration = new AppConfiguration();
         appConfiguration.setUploadPath("uploads-test");
 
-        fileService = new FileService(appConfiguration);
+        fileService = new FileService(appConfiguration, null);
 
         // Recordar que las carpetas de subida las crea nuestra app durante la inicialización.
         // Lo hace la clase WebConfiguration, pero como esa clase no será inicializada por Spring, la creación

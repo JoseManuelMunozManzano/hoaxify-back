@@ -2,6 +2,7 @@ package com.jmunoz.hoaxify;
 
 import com.jmunoz.hoaxify.configuration.AppConfiguration;
 import com.jmunoz.hoaxify.file.FileAttachment;
+import com.jmunoz.hoaxify.file.FileAttachmentRepository;
 import com.jmunoz.hoaxify.user.UserRepository;
 import com.jmunoz.hoaxify.user.UserService;
 import org.apache.commons.io.FileUtils;
@@ -40,9 +41,13 @@ public class FileUploadControllerTest {
     @Autowired
     AppConfiguration appConfiguration;
 
+    @Autowired
+    FileAttachmentRepository fileAttachmentRepository;
+
     @BeforeEach
     void setUp() throws IOException {
         userRepository.deleteAll();
+        fileAttachmentRepository.deleteAll();
         testRestTemplate.getRestTemplate().getInterceptors().clear();
         FileUtils.cleanDirectory(new File(appConfiguration.getFullAttachmentsPath()));
     }
@@ -119,5 +124,16 @@ public class FileUploadControllerTest {
         String imagePath = appConfiguration.getFullAttachmentsPath() + "/" + response.getBody().getName();
         File storedImage = new File(imagePath);
         assertThat(storedImage.exists()).isTrue();
+    }
+
+    // Ahora mismo FileAttachment es solo un objeto para crear la response body en requests de subida de ficheros.
+    // Pero necesitamos almacenar en base de datos esa información, para más tarde poder buscar ficheros que
+    // no correspondan a ningún hoax.
+    @Test
+    void uploadFile_withImageFromAuthorizedUser_fileAttachmentSavedToDatabase() {
+        userService.save(TestUtil.createValidUser("user1"));
+        authenticate("user1");
+        uploadFile(geRequestEntity(), FileAttachment.class);
+        assertThat(fileAttachmentRepository.count()).isEqualTo(1);
     }
 }

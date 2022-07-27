@@ -21,9 +21,12 @@ public class FileService {
 
     Tika tika;
 
-    public FileService(AppConfiguration appConfiguration) {
+    FileAttachmentRepository fileAttachmentRepository;
+
+    public FileService(AppConfiguration appConfiguration, FileAttachmentRepository fileAttachmentRepository) {
         super();
         this.appConfiguration = appConfiguration;
+        this.fileAttachmentRepository = fileAttachmentRepository;
         tika = new Tika();
     }
 
@@ -69,6 +72,6 @@ public class FileService {
             e.printStackTrace();
         }
 
-        return fileAttachment;
+        return fileAttachmentRepository.save(fileAttachment);
     }
 }
