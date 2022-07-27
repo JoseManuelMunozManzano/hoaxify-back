@@ -1,5 +1,7 @@
 package com.jmunoz.hoaxify.hoax;
 
+import com.jmunoz.hoaxify.file.FileAttachment;
+import com.jmunoz.hoaxify.file.FileAttachmentRepository;
 import com.jmunoz.hoaxify.user.User;
 import com.jmunoz.hoaxify.user.UserService;
 import org.springframework.data.domain.Page;
@@ -17,18 +19,30 @@ public class HoaxService {
 
     UserService userService;
 
+    FileAttachmentRepository fileAttachmentRepository;
+
     // Inyectado en el constructor.
     // En las clases Service escogimos inyección en constructor, ya que Spring creará una instancia de esta clase
     // HoaxService, llamará a este constructor y verá que el constructor busca HoaxRepository y suministrará la
     // instancia de HoaxRepository
-    public HoaxService(HoaxRepository hoaxRepository, UserService userService) {
+    public HoaxService(HoaxRepository hoaxRepository, UserService userService, FileAttachmentRepository fileAttachmentRepository) {
         this.hoaxRepository = hoaxRepository;
         this.userService = userService;
+        this.fileAttachmentRepository = fileAttachmentRepository;
     }
 
     public Hoax save(User user, Hoax hoax) {
         hoax.setTimestamp(new Date());
         hoax.setUser(user);
+        // Se utiliza hoax.getAttachment para saber que hay un adjunto, pero no se puede utilizar
+        // para actualizar.
+        // Tenemos que recoger el FileAttachment que hay en BD, con todos los campos cargados, y ese
+        // se asigna a hoax.
+        if (hoax.getAttachment() != null) {
+            FileAttachment inDB = fileAttachmentRepository.findById(hoax.getAttachment().getId()).get();
+            inDB.setHoax(hoax);
+            hoax.setAttachment(inDB);
+        }
         return hoaxRepository.save(hoax);
     }
 

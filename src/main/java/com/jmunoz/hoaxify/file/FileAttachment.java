@@ -23,5 +23,8 @@ public class FileAttachment {
 
     private String fileType;
 
+    // Se establecen las relaciones entre Hoax y FileAttachment
+    // Un hoax puede tener un fichero adjunto
+    @OneToOne
     private Hoax hoax;
 }

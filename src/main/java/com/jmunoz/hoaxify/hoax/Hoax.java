@@ -32,5 +32,8 @@ public class Hoax {
     @ManyToOne
     private User user;
 
+    // Se establecen las relaciones entre Hoax y FileAttachment
+    // Un fichero adjunto pertenece a un hoax
+    @OneToOne(mappedBy = "hoax")
     private FileAttachment attachment;
 }

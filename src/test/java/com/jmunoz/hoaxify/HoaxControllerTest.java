@@ -91,8 +91,13 @@ public class HoaxControllerTest {
     // el delete de User no va a funcionar.
     //
     // Aquí borramos el hoax para que en los otros test ya se puede borrar User.
+    //
+    // Como tenemos en @BeforeEach deleteAll de fileAttachmentRepository,
+    // como se ha establecido una relación entre las tablas FileAttachment y Hoax, y como en FileAttachment
+    // queda un registro, el delete de Hoax no va a funcionar. Se añade el fileAttachmentRepository primero.
     @AfterEach
     void tearDown() {
+        fileAttachmentRepository.deleteAll();
         hoaxRepository.deleteAll();
     }
 
