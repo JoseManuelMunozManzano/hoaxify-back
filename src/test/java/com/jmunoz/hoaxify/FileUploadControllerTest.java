@@ -101,4 +101,13 @@ public class FileUploadControllerTest {
         ResponseEntity<FileAttachment> response = uploadFile(geRequestEntity(), FileAttachment.class);
         assertThat(response.getBody().getDate()).isNotNull();
     }
+
+    @Test
+    void uploadFile_withImageFromAuthorizedUser_receiveFileAttachmentWithRandomName() {
+        userService.save(TestUtil.createValidUser("user1"));
+        authenticate("user1");
+        ResponseEntity<FileAttachment> response = uploadFile(geRequestEntity(), FileAttachment.class);
+        assertThat(response.getBody().getName()).isNotNull();
+        assertThat(response.getBody().getName()).isNotEqualTo("profile.png");
+    }
 }

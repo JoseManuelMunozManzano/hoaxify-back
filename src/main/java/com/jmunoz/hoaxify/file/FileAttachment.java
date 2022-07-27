@@ -8,4 +8,6 @@ import java.util.Date;
 public class FileAttachment {
 
     private Date date;
+
+    private String name;
 }
