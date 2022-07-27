@@ -82,6 +82,10 @@ public class FileUploadControllerTest {
         // de la autorización
         // Hay 2 opciones:
         // 1. Al igual que los otros mapeos que hay, añadimos otro antMatcher
+        // 2. Como ya tenemos un mapeo para hoaxes y nuestra url actual comienza con /api/1.0/hoaxes,
+        //    se puede añadir /** para indicar que to-do lo que empiece con /api/1.0/hoaxes entra
+        //    en esa autenticación.
+        //    Hay que ejecutar aquí todos los tests, porque este cambio afecta a toda la seguridad.
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
     }
 }
