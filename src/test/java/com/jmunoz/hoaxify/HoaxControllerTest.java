@@ -403,11 +403,7 @@ public class HoaxControllerTest {
         userService.save(TestUtil.createValidUser("user1"));
         authenticate("user1");
 
-        ClassPathResource imageResource = new ClassPathResource("profile.png");
-        byte[] fileAsByte = FileUtils.readFileToByteArray(imageResource.getFile());
-
-        // Se crea un MultipartFile usando mock
-        MultipartFile file = new MockMultipartFile("profile.png", fileAsByte);
+        MultipartFile file = createFile();
 
         FileAttachment savedFile = fileService.saveAttachment(file);
 
@@ -417,6 +413,14 @@ public class HoaxControllerTest {
 
         FileAttachment inDB = fileAttachmentRepository.findAll().get(0);
         assertThat(inDB.getHoax().getId()).isEqualTo(response.getBody().getId());
+    }
+
+    private MultipartFile createFile() throws IOException {
+        ClassPathResource imageResource = new ClassPathResource("profile.png");
+        byte[] fileAsByte = FileUtils.readFileToByteArray(imageResource.getFile());
+
+        MultipartFile file = new MockMultipartFile("profile.png", fileAsByte);
+        return file;
     }
 
     @Test
