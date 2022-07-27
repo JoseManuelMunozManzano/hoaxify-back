@@ -432,6 +432,22 @@ public class HoaxControllerTest {
         assertThat(inDB.getAttachment().getId()).isEqualTo(savedFile.getId());
     }
 
+    @Test
+    void postHoax_whenHoaxHasFileAttachmentAndUserIsAuthorized_receiveHoaxVMWithAttachment() throws IOException {
+        userService.save(TestUtil.createValidUser("user1"));
+        authenticate("user1");
+
+        MultipartFile file = createFile();
+
+        FileAttachment savedFile = fileService.saveAttachment(file);
+
+        Hoax hoax = TestUtil.createValidHoax();
+        hoax.setAttachment(savedFile);
+        ResponseEntity<HoaxVM> response = postHoax(hoax, HoaxVM.class);
+
+        assertThat(response.getBody().getAttachment().getName()).isEqualTo(savedFile.getName());
+    }
+
     private MultipartFile createFile() throws IOException {
         ClassPathResource imageResource = new ClassPathResource("profile.png");
         byte[] fileAsByte = FileUtils.readFileToByteArray(imageResource.getFile());
