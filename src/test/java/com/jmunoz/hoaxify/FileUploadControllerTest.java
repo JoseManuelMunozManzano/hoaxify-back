@@ -51,29 +51,27 @@ public class FileUploadControllerTest {
                 .getRestTemplate().getInterceptors().add(new BasicAuthenticationInterceptor(username, "P4ssword"));
     }
 
-    @Test
-    void uploadFile_withImageFromAuthorizedUser_receiveOk() {
-        userService.save(TestUtil.createValidUser("user1"));
-        authenticate("user1");
-
-        // No vamos a hacer un post de Json Body.
-        // Vamos a enviar un multipart form data.
-        // Esta es la parte del body.
+    private HttpEntity<MultiValueMap<String, Object>> geRequestEntity() {
         ClassPathResource imageResource = new ClassPathResource("profile.png");
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("file", imageResource);
 
-        // Indicamos en el header que es un multipart form data
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
-        // Combinamos las dos partes (body y header) para hacer la request al backend
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+        return requestEntity;
+    }
 
-        // Response Entity
-        ResponseEntity<Object> response =
-                testRestTemplate.exchange(API_1_0_HOAXES_UPLOAD, HttpMethod.POST, requestEntity, Object.class);
+    public <T> ResponseEntity<T> uploadFile(HttpEntity<?> requestEntity, Class<T> responseType) {
+        return testRestTemplate.exchange(API_1_0_HOAXES_UPLOAD, HttpMethod.POST, requestEntity, responseType);
+    }
 
+    @Test
+    void uploadFile_withImageFromAuthorizedUser_receiveOk() {
+        userService.save(TestUtil.createValidUser("user1"));
+        authenticate("user1");
+        ResponseEntity<Object> response = uploadFile(geRequestEntity(), Object.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 }
