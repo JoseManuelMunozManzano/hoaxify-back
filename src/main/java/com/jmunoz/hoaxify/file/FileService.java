@@ -28,7 +28,7 @@ public class FileService {
     }
 
     public String saveProfileImage(String base64Image) throws IOException {
-        String imageName = UUID.randomUUID().toString().replaceAll("-", "");
+        String imageName = getRandomName();
 
         byte[] decodedBytes = Base64.getDecoder().decode(base64Image);
         File target = new File(appConfiguration.getFullProfileImagesPath() + "/" + imageName);
@@ -36,7 +36,11 @@ public class FileService {
         return imageName;
     }
 
-    // Abnalizamos el array de bytes para buscar el tipo.
+    private String getRandomName() {
+        return UUID.randomUUID().toString().replaceAll("-", "");
+    }
+
+    // Analizamos el array de bytes para buscar el tipo.
     // Para eso se va a usar la biblioteca Apache Tika Core, que es capaz de detectar tipos de ficheros.
     public String detectType(byte[] fileArr) {
         return tika.detect(fileArr);
@@ -54,7 +58,7 @@ public class FileService {
     public FileAttachment saveAttachment(MultipartFile file) {
         FileAttachment fileAttachment = new FileAttachment();
         fileAttachment.setDate(new Date());
-        String randomName = UUID.randomUUID().toString().replaceAll("-", "");
+        String randomName = getRandomName();
         fileAttachment.setName(randomName);
 
         File target = new File(appConfiguration.getFullAttachmentsPath() + "/" + randomName);
