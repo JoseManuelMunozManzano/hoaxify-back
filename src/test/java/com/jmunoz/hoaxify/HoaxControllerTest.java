@@ -1,6 +1,10 @@
 package com.jmunoz.hoaxify;
 
+import com.jmunoz.hoaxify.configuration.AppConfiguration;
 import com.jmunoz.hoaxify.error.ApiError;
+import com.jmunoz.hoaxify.file.FileAttachment;
+import com.jmunoz.hoaxify.file.FileAttachmentRepository;
+import com.jmunoz.hoaxify.file.FileService;
 import com.jmunoz.hoaxify.hoax.Hoax;
 import com.jmunoz.hoaxify.hoax.HoaxRepository;
 import com.jmunoz.hoaxify.hoax.HoaxService;
@@ -8,6 +12,7 @@ import com.jmunoz.hoaxify.hoax.HoaxVM;
 import com.jmunoz.hoaxify.user.User;
 import com.jmunoz.hoaxify.user.UserRepository;
 import com.jmunoz.hoaxify.user.UserService;
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,15 +20,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -52,14 +62,25 @@ public class HoaxControllerTest {
     @Autowired
     HoaxService hoaxService;
 
+    @Autowired
+    FileAttachmentRepository fileAttachmentRepository;
+
+    @Autowired
+    AppConfiguration appConfiguration;
+
+    @Autowired
+    FileService fileService;
+
     @PersistenceUnit
     private EntityManagerFactory entityManagerFactory;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws IOException {
+        fileAttachmentRepository.deleteAll();
         hoaxRepository.deleteAll();
         userRepository.deleteAll();
         testRestTemplate.getRestTemplate().getInterceptors().clear();
+        FileUtils.cleanDirectory(new File(appConfiguration.getFullAttachmentsPath()));
     }
 
     // Para evitar errores en otras clases de tests, ya que para el último test de esta clase
@@ -365,6 +386,32 @@ public class HoaxControllerTest {
         Hoax hoax = TestUtil.createValidHoax();
         ResponseEntity<HoaxVM> response = postHoax(hoax, HoaxVM.class);
         assertThat(response.getBody().getUser().getUsername()).isEqualTo("user1");
+    }
+
+    // Se va a establecer la relación entre hoax y ficheros adjuntados.
+    // Desde el lado del cliente se subirá la imagen y se dará la información del archivo almacenado
+    // a la petición submit del hoax.
+    // Podemos permitir que un hoax pueda tener muchos ficheros adjuntos, pero se limita a 1.
+    // Es decir, un hoax puede tener solo un fichero adjunto.
+    @Test
+    void postHoax_whenHoaxHasFileAttachmentAndUserIsAuthorized_fileAttachmentHoaxRelationIsUpdatedInDatabase() throws IOException {
+        userService.save(TestUtil.createValidUser("user1"));
+        authenticate("user1");
+
+        ClassPathResource imageResource = new ClassPathResource("profile.png");
+        byte[] fileAsByte = FileUtils.readFileToByteArray(imageResource.getFile());
+
+        // Se crea un MultipartFile usando mock
+        MultipartFile file = new MockMultipartFile("profile.png", fileAsByte);
+
+        FileAttachment savedFile = fileService.saveAttachment(file);
+
+        Hoax hoax = TestUtil.createValidHoax();
+        hoax.setAttachment(savedFile);
+        ResponseEntity<HoaxVM> response = postHoax(hoax, HoaxVM.class);
+
+        FileAttachment inDB = fileAttachmentRepository.findAll().get(0);
+        assertThat(inDB.getHoax().getId()).isEqualTo(response.getBody().getId());
     }
 
     @Test

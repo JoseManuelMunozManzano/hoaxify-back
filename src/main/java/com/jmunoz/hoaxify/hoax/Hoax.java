@@ -1,6 +1,7 @@
 package com.jmunoz.hoaxify.hoax;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.jmunoz.hoaxify.file.FileAttachment;
 import com.jmunoz.hoaxify.user.User;
 import lombok.Data;
 
@@ -30,4 +31,6 @@ public class Hoax {
     // Relación muchos Hoaxes pueden pertenecer a un User
     @ManyToOne
     private User user;
+
+    private FileAttachment attachment;
 }
