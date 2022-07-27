@@ -136,4 +136,14 @@ public class FileUploadControllerTest {
         uploadFile(geRequestEntity(), FileAttachment.class);
         assertThat(fileAttachmentRepository.count()).isEqualTo(1);
     }
+
+    @Test
+    void uploadFile_withImageFromAuthorizedUser_fileAttachmentStoredWithFileType() {
+        userService.save(TestUtil.createValidUser("user1"));
+        authenticate("user1");
+        uploadFile(geRequestEntity(), FileAttachment.class);
+        FileAttachment storedFile = fileAttachmentRepository.findAll().get(0);
+        // El tipo de fichero puede usarse en frontend para decidir como mostrar el adjunto.
+        assertThat(storedFile.getFileType()).isEqualTo("image/png");
+    }
 }

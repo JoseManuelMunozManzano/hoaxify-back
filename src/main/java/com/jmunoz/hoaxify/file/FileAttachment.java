@@ -19,4 +19,6 @@ public class FileAttachment {
     private Date date;
 
     private String name;
+
+    private String fileType;
 }

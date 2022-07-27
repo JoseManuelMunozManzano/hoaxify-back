@@ -68,6 +68,7 @@ public class FileService {
         try {
             byte[] fileAsByte = file.getBytes();
             FileUtils.writeByteArrayToFile(target, fileAsByte);
+            fileAttachment.setFileType(detectType(fileAsByte));
         } catch (IOException e) {
             e.printStackTrace();
         }
