@@ -85,4 +85,17 @@ public class FileAttachmentRepositoryTest {
         List<FileAttachment> attachments = fileAttachmentRepository.findByDateBeforeAndHoaxIsNull(oneHourAgo);
         assertThat(attachments.size()).isEqualTo(0);
     }
+
+    @Test
+    void findByDateBeforeAndHoaxIsNull_whenSomeAttachmentsOldSomeNewAndSomeWithHoax_returnsAttachmentsWithOlderAndNoHoaxAssigned() {
+        Hoax hoax1 = testEntityManager.persist(TestUtil.createValidHoax());
+
+        testEntityManager.persist(getOldFileAttachmentWithHoax(hoax1));
+        testEntityManager.persist(getOneHourOldFileAttachment());
+        testEntityManager.persist(getFileAttachmentWithinOneHour());
+
+        Date oneHourAgo = new Date(System.currentTimeMillis() - (60*60*1000));
+        List<FileAttachment> attachments = fileAttachmentRepository.findByDateBeforeAndHoaxIsNull(oneHourAgo);
+        assertThat(attachments.size()).isEqualTo(1);
+    }
 }
