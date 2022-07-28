@@ -3,6 +3,8 @@ package com.jmunoz.hoaxify.file;
 import com.jmunoz.hoaxify.configuration.AppConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.apache.tika.Tika;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,7 +17,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+// Se usa @EnabledScheduling para planificar la ejecución periódica de la limpieza de adjuntos no asociados a hoax.
+// También en método se usa @Scheduled
 @Service
+@EnableScheduling
 public class FileService {
 
     AppConfiguration appConfiguration;
@@ -77,6 +82,8 @@ public class FileService {
         return fileAttachmentRepository.save(fileAttachment);
     }
 
+    // Automáticamente ejecutado por Spring cada 60 minutos
+    @Scheduled(fixedRate = 60 * 60 * 1000)
     public void cleanupStorage() {
         Date oneHourAgo = new Date(System.currentTimeMillis() - (60*60*1000));
         List<FileAttachment> oldFiles = fileAttachmentRepository.findByDateBeforeAndHoaxIsNull(oneHourAgo);
