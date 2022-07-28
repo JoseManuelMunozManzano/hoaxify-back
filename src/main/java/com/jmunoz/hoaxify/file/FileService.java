@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -74,5 +75,21 @@ public class FileService {
         }
 
         return fileAttachmentRepository.save(fileAttachment);
+    }
+
+    public void cleanupStorage() {
+        Date oneHourAgo = new Date(System.currentTimeMillis() - (60*60*1000));
+        List<FileAttachment> oldFiles = fileAttachmentRepository.findByDateBeforeAndHoaxIsNull(oneHourAgo);
+        for (FileAttachment file: oldFiles) {
+            deleteAttachmentImage(file.getName());
+        }
+    }
+
+    private void deleteAttachmentImage(String image) {
+        try {
+            Files.deleteIfExists(Paths.get(appConfiguration.getFullAttachmentsPath() + "/" + image));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
