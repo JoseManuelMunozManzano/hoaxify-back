@@ -82,6 +82,7 @@ public class FileService {
         List<FileAttachment> oldFiles = fileAttachmentRepository.findByDateBeforeAndHoaxIsNull(oneHourAgo);
         for (FileAttachment file: oldFiles) {
             deleteAttachmentImage(file.getName());
+            fileAttachmentRepository.deleteById(file.getId());
         }
     }
 

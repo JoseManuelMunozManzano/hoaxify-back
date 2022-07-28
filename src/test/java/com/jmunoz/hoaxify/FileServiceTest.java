@@ -105,4 +105,30 @@ public class FileServiceTest {
         assertThat(storedImage.exists()).isFalse();
     }
 
+    @Test
+    void cleanupStorage_whenOldFilesExist_removesFilesAttachmentFromDatabase() throws IOException {
+        String fileName = "random-file";
+        String filePath = appConfiguration.getFullAttachmentsPath() + "/" + fileName;
+        File source = new ClassPathResource("profile.png").getFile();
+        File target = new File(filePath);
+        FileUtils.copyFile(source, target);
+
+        // Normalmente, esto se configuraría en DB, pero aquí no hay interacciones en BD porque solo hacemos un mock
+        // de su comportamiento.
+        FileAttachment fileAttachment = new FileAttachment();
+        fileAttachment.setId(5);
+        fileAttachment.setName(fileName);
+
+        // También tenemos métodos en FileService pero para poder usarlos se tendría que cambiar el modo del test.
+        // Como estamos haciendo unit testing, no tenemos BD ni repository.
+        // Solo tenemos una instancia de FileService
+        Mockito.when(fileAttachmentRepository.findByDateBeforeAndHoaxIsNull(Mockito.any(Date.class)))
+                .thenReturn(Arrays.asList(fileAttachment));
+
+        fileService.cleanupStorage();
+        File storedImage = new File(filePath);
+
+        Mockito.verify(fileAttachmentRepository).deleteById(5L);
+    }
+
 }
