@@ -41,6 +41,14 @@ public class FileAttachmentRepositoryTest {
         return fileAttachment;
     }
 
+    private FileAttachment getFileAttachmentWithinOneHour() {
+        // Hace un minuto
+        Date date = new Date(System.currentTimeMillis() - (60*1000));
+        FileAttachment fileAttachment = new FileAttachment();
+        fileAttachment.setDate(date);
+        return fileAttachment;
+    }
+
     @Test
     void findByDateBeforeAndHoaxIsNull_whenAttachmentsDateOlderThanOneHour_returnsAll() {
         testEntityManager.persist(getOneHourOldFileAttachment());
@@ -61,6 +69,17 @@ public class FileAttachmentRepositoryTest {
         testEntityManager.persist(getOldFileAttachmentWithHoax(hoax1));
         testEntityManager.persist(getOldFileAttachmentWithHoax(hoax2));
         testEntityManager.persist(getOldFileAttachmentWithHoax(hoax3));
+
+        Date oneHourAgo = new Date(System.currentTimeMillis() - (60*60*1000));
+        List<FileAttachment> attachments = fileAttachmentRepository.findByDateBeforeAndHoaxIsNull(oneHourAgo);
+        assertThat(attachments.size()).isEqualTo(0);
+    }
+
+    @Test
+    void findByDateBeforeAndHoaxIsNull_whenAttachmentsDateWithinOneHour_returnsNone() {
+        testEntityManager.persist(getFileAttachmentWithinOneHour());
+        testEntityManager.persist(getFileAttachmentWithinOneHour());
+        testEntityManager.persist(getFileAttachmentWithinOneHour());
 
         Date oneHourAgo = new Date(System.currentTimeMillis() - (60*60*1000));
         List<FileAttachment> attachments = fileAttachmentRepository.findByDateBeforeAndHoaxIsNull(oneHourAgo);
