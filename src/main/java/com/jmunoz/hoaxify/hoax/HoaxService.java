@@ -2,6 +2,7 @@ package com.jmunoz.hoaxify.hoax;
 
 import com.jmunoz.hoaxify.file.FileAttachment;
 import com.jmunoz.hoaxify.file.FileAttachmentRepository;
+import com.jmunoz.hoaxify.file.FileService;
 import com.jmunoz.hoaxify.user.User;
 import com.jmunoz.hoaxify.user.UserService;
 import org.springframework.data.domain.Page;
@@ -21,14 +22,18 @@ public class HoaxService {
 
     FileAttachmentRepository fileAttachmentRepository;
 
+    FileService fileService;
+
     // Inyectado en el constructor.
     // En las clases Service escogimos inyección en constructor, ya que Spring creará una instancia de esta clase
     // HoaxService, llamará a este constructor y verá que el constructor busca HoaxRepository y suministrará la
     // instancia de HoaxRepository
-    public HoaxService(HoaxRepository hoaxRepository, UserService userService, FileAttachmentRepository fileAttachmentRepository) {
+    public HoaxService(HoaxRepository hoaxRepository, UserService userService,
+                       FileAttachmentRepository fileAttachmentRepository, FileService fileService) {
         this.hoaxRepository = hoaxRepository;
         this.userService = userService;
         this.fileAttachmentRepository = fileAttachmentRepository;
+        this.fileService = fileService;
     }
 
     public Hoax save(User user, Hoax hoax) {
@@ -113,6 +118,10 @@ public class HoaxService {
     }
 
     public void deleteHoax(long id) {
+        Hoax hoax = hoaxRepository.getReferenceById(id);
+        if (hoax.getAttachment() != null) {
+            fileService.deleteAttachmentImage(hoax.getAttachment().getName());
+        }
         hoaxRepository.deleteById(id);
     }
 }
