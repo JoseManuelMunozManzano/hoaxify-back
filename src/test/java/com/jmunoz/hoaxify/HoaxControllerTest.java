@@ -155,6 +155,10 @@ public class HoaxControllerTest {
         return testRestTemplate.exchange(path, HttpMethod.GET, null, responseType);
     }
 
+    public <T> ResponseEntity<T> deleteHoax(long hoaxId, Class<T> responseType) {
+        return testRestTemplate.exchange(API_1_0_HOAXES + "/" + hoaxId, HttpMethod.DELETE, null, responseType);
+    }
+
     @Test
     void postHoax_whenHoaxIsValidAndUserIsAuthorized_receiveOk() {
         userService.save(TestUtil.createValidUser("user1"));
@@ -757,5 +761,12 @@ public class HoaxControllerTest {
                 getNewHoaxCountOfUser(fourth.getId(), "user1", new ParameterizedTypeReference<Map<String, Long>>() {});
 
         assertThat(response.getBody().get("count")).isEqualTo(1);
+    }
+
+    @Test
+    void deleteHoax_whenUserIsUnauthorized_receiveUnauthorized() {
+        // No importa si el hoax existe
+        ResponseEntity<Object> response = deleteHoax(555, Object.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
     }
 }
