@@ -802,4 +802,28 @@ public class HoaxControllerTest {
         Optional<Hoax> inDB = hoaxRepository.findById(hoax.getId());
         assertThat(inDB.isPresent()).isFalse();
     }
+
+    @Test
+    void deleteHoax_whenHoaxIsOwnedByAnotherUser_receiveForbidden() {
+        User user = userService.save(TestUtil.createValidUser("user1"));
+        authenticate("user1");
+        User hoaxOwner = userService.save(TestUtil.createValidUser("hoax-owner"));
+        Hoax hoax = hoaxService.save(hoaxOwner, TestUtil.createValidHoax());
+
+        ResponseEntity<Object> response = deleteHoax(hoax.getId(), Object.class);
+        // Para evitar borrar un hoax de otro usuario se pueden implementar las siguientes soluciones:
+        // 1. Comprobar el hoax en BD, buscar su propietario y actuar como corresponda.
+        //    Se puede corregir en nuestro service junto antes del delete.
+        // 2. Usando method level authorization de Spring Security. Esto ya se utilizó en UserController y
+        //    también es la solución que se va a aplicar aquí (Autorización a nivel de método).
+        //    Esta vez, sin embargo, es más complicado. Necesitamos extraer los hoaxs, para un id especificado,
+        //    en BD y buscar su propietario. Luego lo comparamos con el usuario actual registrado.
+        //    Esto no se puede hacer con una expresión de Spring.
+        //    Lo que se va a hacer es implementar la funcionalidad en una clase service separada y luego,
+        //    usando Spring, llamaremos a ese service con una expresión de Spring. Ver HoaxSecurityService.java
+        //    y la expresión @PreAuthorize en HoaxController.java.
+        //
+        //    Con la codificación realizada, tenemos automáticamente el return de 403
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+    }
 }
