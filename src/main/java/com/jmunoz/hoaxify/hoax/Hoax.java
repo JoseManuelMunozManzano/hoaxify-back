@@ -34,6 +34,8 @@ public class Hoax {
 
     // Se establecen las relaciones entre Hoax y FileAttachment
     // Un fichero adjunto pertenece a un hoax
-    @OneToOne(mappedBy = "hoax")
+    //
+    // orphanRemoval = true indica que cuando se borra un hoax, su adjunto también se eliminará
+    @OneToOne(mappedBy = "hoax", orphanRemoval = true)
     private FileAttachment attachment;
 }

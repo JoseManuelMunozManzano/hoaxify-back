@@ -835,4 +835,29 @@ public class HoaxControllerTest {
         ResponseEntity<Object> response = deleteHoax(5555, Object.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
+
+    @Test
+    void deleteHoax_whenHoaxHasAttachment_attachmentRemovedFromDatabase() throws IOException {
+        userService.save(TestUtil.createValidUser("user1"));
+        authenticate("user1");
+
+        MultipartFile file = createFile();
+
+        FileAttachment savedFile = fileService.saveAttachment(file);
+
+        Hoax hoax = TestUtil.createValidHoax();
+        hoax.setAttachment(savedFile);
+        ResponseEntity<HoaxVM> response = postHoax(hoax, HoaxVM.class);
+
+        long hoaxId = response.getBody().getId();
+        deleteHoax(hoaxId, Object.class);
+
+        Optional<FileAttachment> optionalFileAttachment = fileAttachmentRepository.findById(savedFile.getId());
+
+        // Falla con una excepción (constraint violation)
+        // Cuando se intenta borrar el hoax, Hibernate chequea las tablas relacionadas. Como tenemos
+        // un dato relacionado en FileAttachment con el hoax actual, la operación delete falla.
+        // Se corrige indicando la opción orphanRemoval a true
+        assertThat(optionalFileAttachment.isPresent()).isFalse();
+    }
 }
