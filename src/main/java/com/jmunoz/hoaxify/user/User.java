@@ -15,8 +15,10 @@ import javax.validation.constraints.Size;
 import java.util.Collection;
 import java.util.List;
 
+// Cambiamos el nombre de la tabla usando @Table(name="users) en vez de @Entity(name="Users)
 @Data
-@Entity(name = "Users")
+@Entity
+@Table(name = "users")
 public class User implements UserDetails {
 
     private static final long serialVersionUID = 4074374728582967483L;
