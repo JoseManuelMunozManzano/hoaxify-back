@@ -826,4 +826,13 @@ public class HoaxControllerTest {
         //    Con la codificación realizada, tenemos automáticamente el return de 403
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
+
+    // Solo para documentar el comportamiento
+    @Test
+    void deleteHoax_whenHoaxNotExist_receiveForbidden() {
+        User user = userService.save(TestUtil.createValidUser("user1"));
+        authenticate("user1");
+        ResponseEntity<Object> response = deleteHoax(5555, Object.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+    }
 }
