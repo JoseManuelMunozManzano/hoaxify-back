@@ -9,6 +9,7 @@ import com.jmunoz.hoaxify.hoax.Hoax;
 import com.jmunoz.hoaxify.hoax.HoaxRepository;
 import com.jmunoz.hoaxify.hoax.HoaxService;
 import com.jmunoz.hoaxify.hoax.HoaxVM;
+import com.jmunoz.hoaxify.shared.GenericResponse;
 import com.jmunoz.hoaxify.user.User;
 import com.jmunoz.hoaxify.user.UserRepository;
 import com.jmunoz.hoaxify.user.UserService;
@@ -768,5 +769,25 @@ public class HoaxControllerTest {
         // No importa si el hoax existe
         ResponseEntity<Object> response = deleteHoax(555, Object.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+    }
+
+    @Test
+    void deleteHoax_whenUserIsAuthorized_receiveOk() {
+        User user = userService.save(TestUtil.createValidUser("user1"));
+        authenticate("user1");
+        Hoax hoax = hoaxService.save(user, TestUtil.createValidHoax());
+
+        ResponseEntity<Object> response = deleteHoax(hoax.getId(), Object.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    void deleteHoax_whenUserIsAuthorized_receiveGenericResponse() {
+        User user = userService.save(TestUtil.createValidUser("user1"));
+        authenticate("user1");
+        Hoax hoax = hoaxService.save(user, TestUtil.createValidHoax());
+
+        ResponseEntity<GenericResponse> response = deleteHoax(hoax.getId(), GenericResponse.class);
+        assertThat(response.getBody().getMessage()).isNotNull();
     }
 }

@@ -1,6 +1,7 @@
 package com.jmunoz.hoaxify.hoax;
 
 import com.jmunoz.hoaxify.shared.CurrentUser;
+import com.jmunoz.hoaxify.shared.GenericResponse;
 import com.jmunoz.hoaxify.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -53,5 +54,10 @@ public class HoaxController {
         List<HoaxVM> newHoaxes = hoaxService.getNewHoaxes(id, username, pageable)
                 .stream().map(HoaxVM::new).collect(Collectors.toList());
         return ResponseEntity.ok(newHoaxes);
+    }
+
+    @DeleteMapping("/hoaxes/{id:[0-9]+}")
+    GenericResponse deleteHoax() {
+        return new GenericResponse("Hoax is removed");
     }
 }
