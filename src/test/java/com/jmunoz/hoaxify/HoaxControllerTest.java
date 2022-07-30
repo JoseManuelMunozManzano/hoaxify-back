@@ -37,6 +37,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -789,5 +790,16 @@ public class HoaxControllerTest {
 
         ResponseEntity<GenericResponse> response = deleteHoax(hoax.getId(), GenericResponse.class);
         assertThat(response.getBody().getMessage()).isNotNull();
+    }
+
+    @Test
+    void deleteHoax_whenUserIsAuthorized_hoaxRemovedFromDatabase() {
+        User user = userService.save(TestUtil.createValidUser("user1"));
+        authenticate("user1");
+        Hoax hoax = hoaxService.save(user, TestUtil.createValidHoax());
+
+        deleteHoax(hoax.getId(), GenericResponse.class);
+        Optional<Hoax> inDB = hoaxRepository.findById(hoax.getId());
+        assertThat(inDB.isPresent()).isFalse();
     }
 }

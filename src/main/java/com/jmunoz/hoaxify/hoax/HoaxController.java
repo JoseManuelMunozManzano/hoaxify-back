@@ -57,7 +57,8 @@ public class HoaxController {
     }
 
     @DeleteMapping("/hoaxes/{id:[0-9]+}")
-    GenericResponse deleteHoax() {
+    GenericResponse deleteHoax(@PathVariable long id) {
+        hoaxService.deleteHoax(id);
         return new GenericResponse("Hoax is removed");
     }
 }
